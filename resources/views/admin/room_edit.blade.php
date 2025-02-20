@@ -65,7 +65,7 @@
                     class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-md transition duration-150 ease-in-out">
                     Cancel
                 </a>
-                <button type="submit"
+                <button type="submit" onclick="console.log('🔹 Update Room Function Called!'); updateRoom();"
                     class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md transition duration-150 ease-in-out">
                     Update Room
                 </button>
@@ -108,57 +108,99 @@
             }).catch(error => {
                 console.error("Error loading room:", error);
                 alert("Failed to load room details. Redirecting...");
-                window.location.href = "/admin/rooms";
+                window.location.href = "/admin/room_list";
             });
         }
 
-        function updateRoom() {
-            // 1) รับค่า Token ของ Admin
-            let token = localStorage.getItem('admin_token');
+        // function updateRoom() {
+        //     console.log("updateRoom() function called!"); 
+
+        async function updateRoom() {
+            // Show console log for debugging
+            console.log('🔹 Starting updateRoom function');
+
+            // Get the authentication token
+            const token = localStorage.getItem('admin_token');
             if (!token) {
-                alert("Session expired. Please login again.");
-                window.location.href = "/admin/login";
+                alert('Please login first');
+                window.location.href = '/admin/login';
                 return;
             }
 
-            // 2) ดึงค่า roomId จาก URL (ให้แน่ใจว่าถูกต้อง)
-            let roomId = window.location.pathname.split('/').pop();
-            if (!roomId) {
-                alert("Invalid room ID.");
-                return;
-            }
+            try {
+                // Create FormData object
+                const formData = new FormData();
 
-            // 3) รับค่าจากฟอร์ม
-            let roomName = document.getElementById('room_name').value;
-            let roomDetail = document.getElementById('room_detail').value;
-            let roomPic = document.getElementById('room_pic').files[0];
+                // Get form values
+                const roomName = document.getElementById('room_name').value;
+                const roomDetail = document.getElementById('room_detail').value;
+                const roomPic = document.getElementById('room_pic').files[0];
 
-            // 4) สร้าง FormData
-            let formData = new FormData();
-            if (roomName) formData.append('room_name', roomName);
-            if (roomDetail) formData.append('room_detail', roomDetail);
-            if (roomPic) formData.append('room_pic', roomPic);
-
-            // 5) กำหนด Headers
-            const config = {
-                headers: {
-                    'Accept': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'multipart/form-data' // รองรับการอัปโหลดไฟล์
-                }
-            };
-
-            // 6) ส่งข้อมูลไปยัง API ด้วย `PUT`
-            axios.put(`/api/admin/rooms/${roomId}`, formData, config)
-                .then(response => {
-                    console.log("✅ Update Success:", response.data);
-                    alert("Room updated successfully!");
-                    window.location.href = "/admin/room_list"; // Redirect หลังอัพเดทสำเร็จ
-                })
-                .catch(error => {
-                    console.error("❌ Update Failed:", error.response?.data || error);
-                    alert(error.response?.data?.message || "Failed to update room. Please try again.");
+                // Log form data for debugging
+                console.log('📝 Form Data:', {
+                    roomName,
+                    roomDetail,
+                    hasPic: !!roomPic
                 });
+
+                // Add form fields to FormData
+                formData.append('room_name', roomName);
+                formData.append('room_detail', roomDetail);
+                if (roomPic) {
+                    formData.append('room_pic', roomPic);
+                }
+
+                // Add method override for PUT request
+                formData.append('_method', 'PUT');
+
+                // Show loading state
+                const submitButton = document.querySelector('button[type="submit"]');
+                const originalButtonText = submitButton.innerHTML;
+                submitButton.innerHTML = 'Updating...';
+                submitButton.disabled = true;
+
+                // Make API request
+                const response = await axios({
+                    method: 'post',
+                    url: `/api/admin/rooms/${roomId}`,
+                    data: formData,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'multipart/form-data',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                // Handle success
+                console.log('✅ Room updated successfully:', response.data);
+
+                // Show success message
+                const messageElement = document.getElementById('responseMessage');
+                messageElement.textContent = 'Room updated successfully!';
+                messageElement.classList.remove('hidden');
+                messageElement.classList.remove('text-red-500');
+                messageElement.classList.add('text-green-500');
+
+                // Redirect after short delay
+                setTimeout(() => {
+                    window.location.href = '/admin/room_list';
+                }, 1500);
+
+            } catch (error) {
+                // Handle errors
+                console.error('❌ Error updating room:', error);
+
+                // Show error message
+                const messageElement = document.getElementById('responseMessage');
+                messageElement.textContent = error.response?.data?.message || 'Error updating room. Please try again.';
+                messageElement.classList.remove('hidden');
+                messageElement.classList.remove('text-green-500');
+                messageElement.classList.add('text-red-500');
+
+                // Reset button state
+                submitButton.innerHTML = originalButtonText;
+                submitButton.disabled = false;
+            }
         }
     </script>
 

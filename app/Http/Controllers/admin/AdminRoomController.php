@@ -60,33 +60,43 @@ class AdminRoomController extends Controller
     {
         $room = Room::findOrFail($id);
 
-        // ✅ Validate Input (No `room_status`)
+        // Log ค่าปัจจุบันก่อนอัปเดต
+        Log::info("🔍 Current Room Data:", $room->toArray());
+
+        // ตรวจสอบค่าที่ส่งเข้ามา
+        Log::info("📥 Data Received for Update:", $request->all());
+
         $validatedData = $request->validate([
             'room_name' => 'sometimes|string|max:255',
             'room_detail' => 'sometimes|string',
             'room_pic' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        // ✅ Prepare Data for Update
         $dataToUpdate = [];
 
-        if ($request->has('room_name')) {
+        if ($request->has('room_name') && $request->room_name !== $room->room_name) {
             $dataToUpdate['room_name'] = $request->room_name;
         }
-        if ($request->has('room_detail')) {
+
+        if ($request->has('room_detail') && $request->room_detail !== $room->room_detail) {
             $dataToUpdate['room_detail'] = $request->room_detail;
         }
+
         if ($request->hasFile('room_pic')) {
-            // ✅ Delete old image if exists
             if ($room->room_pic) {
                 Storage::disk('public')->delete($room->room_pic);
             }
             $dataToUpdate['room_pic'] = $request->file('room_pic')->store('room_pics', 'public');
         }
 
-        // ✅ Perform Update
+        // Log ค่าที่จะอัปเดต
+        Log::info("🛠 Data to be Updated:", $dataToUpdate);
+
         if (!empty($dataToUpdate)) {
             $room->update($dataToUpdate);
+            Log::info("✅ Room Updated Successfully:", $room->fresh()->toArray());
+        } else {
+            Log::warning("⚠️ No Data Changed for Room ID: {$id}");
         }
 
         return response()->json([
