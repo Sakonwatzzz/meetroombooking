@@ -5,7 +5,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Auth\GoogleController;
-use App\Http\Controllers\Admin\AdminRoomController;
+use App\Http\Controllers\User\RoomUserController;
+use App\Http\Controllers\RoomDetailController;
+use App\Http\Controllers\user\BookingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,11 +29,11 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 // Route::prefix('admin/room')->middleware('auth')->group(function () {
-//     Route::post('/', [AdminRoomController::class, 'create']); 
-//     Route::get('/', [AdminRoomController::class, 'index']);   
-//     Route::get('{id}', [AdminRoomController::class, 'show']); 
-//     Route::put('{id}', [AdminRoomController::class, 'update']); 
-//     Route::delete('{id}', [AdminRoomController::class, 'destroy']); 
+//     Route::post('/', [AdminRoomController::class, 'create']);
+//     Route::get('/', [AdminRoomController::class, 'index']);
+//     Route::get('{id}', [AdminRoomController::class, 'show']);
+//     Route::put('{id}', [AdminRoomController::class, 'update']);
+//     Route::delete('{id}', [AdminRoomController::class, 'destroy']);
 // });
 
 Route::middleware('auth')->group(function () {
@@ -41,6 +43,9 @@ Route::middleware('auth')->group(function () {
 });
 Route::get('auth/google', [GoogleController::class, 'redirectToGoogle']);
 Route::get('auth/google/callback', [GoogleController::class, 'handleCallback']);
+
+Route::get('/rooms', [RoomUserController::class, 'index'])->middleware('auth')->name('rooms.index');
+
 require __DIR__.'/auth.php';
 
 Route::get('/admin/login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
@@ -59,3 +64,20 @@ Route::middleware('auth:admin')->group(function () {
     Route::get('/admin/users', [AdminDashboardController::class, 'users'])->name('admin.users');
     Route::get('/admin/settings', [AdminDashboardController::class, 'settings'])->name('admin.settings');
 });
+
+Route::get('/rooms/{room_id}', [RoomDetailController::class, 'show']);
+Route::get('room_detail/{id}', [RoomDetailController::class, 'show'])->name('room_detail');
+
+Route::middleware(['auth'])->group(function() {
+    // แสดงฟอร์มการจอง
+    Route::get('/booking/{roomId}', [BookingController::class, 'show'])->name('booking.show');
+
+    // ส่งข้อมูลการจอง
+    Route::post('/booking', [BookingController::class, 'store'])->name('booking.store');
+});
+
+// แสดงหน้าปฏิทิน
+Route::get('/calendar', [BookingController::class, 'calendar'])->name('calendar');
+
+// API สำหรับดึงข้อมูลการจอง
+Route::get('/booking/events', [BookingController::class, 'getEvents'])->name('booking.events');
