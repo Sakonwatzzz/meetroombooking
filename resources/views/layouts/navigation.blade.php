@@ -1,8 +1,7 @@
-<nav class="bg-white shadow-md w-full px-6 py-3 flex justify-between items-center" x-data="navigationComponent()">
-
+<nav class="bg-sky-500 shadow-lg w-full px-6 py-3 h-24 flex justify-between items-center fixed top-0 left-0 right-0 z-50" x-data="navigationComponent()">
     <!-- Left Section: Hamburger Button (Sidebar) -->
     <div>
-        <button @click="sidebarOpen = true" class="p-4 text-gray-600 hover:text-gray-900 focus:outline-none">
+        <button @click="sidebarOpen = true" class="p-4 text-gray-700 hover:text-gray-900 focus:outline-none">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                 stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
@@ -18,7 +17,6 @@
 
     <!-- Right Section: Notifications & Profile -->
     <div class="flex items-center space-x-4">
-
         <!-- Notification Icon -->
         <div class="relative">
             <button @click="notificationOpen = !notificationOpen" class="relative focus:outline-none">
@@ -71,10 +69,10 @@
                     alt="User Avatar">
 
                 <div class="ml-2 text-left">
-                    <span class="block text-sm font-medium text-gray-700">{{ auth()->user()->name }}</span>
-                    <span class="block text-xs text-gray-500">{{ auth()->user()->email }}</span>
+                    <span class="block text-sm font-medium text-gray-900">{{ auth()->user()->name }}</span>
+                    <span class="font-bold block text-xs text-white">{{ auth()->user()->email }}</span>
                 </div>
-                <svg class="w-4 h-4 ml-2 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                <svg class="w-4 h-4 ml-2 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                     xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                 </svg>

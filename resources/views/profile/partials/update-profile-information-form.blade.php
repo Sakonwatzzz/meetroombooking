@@ -98,7 +98,6 @@
             </form>
         </section>
     </body>
-
     <script>
         document.getElementById('avatar-input').addEventListener('change', function(event) {
             let reader = new FileReader();

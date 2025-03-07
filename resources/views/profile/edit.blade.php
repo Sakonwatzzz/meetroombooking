@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,11 +9,12 @@
     <script src="//unpkg.com/alpinejs" defer></script>
 
 </head>
+
 <body>
     <div x-data="{ sidebarOpen: false }">
         @extends('layouts.app')
+        @include('layouts.navigation')
         @section('content')
-            @include('layouts.navigation')
             <x-app-layout>
                 <x-slot name="header">
                     <div class="py-12 mt-16">
@@ -38,5 +40,7 @@
                     </div>
                 </x-slot>
             </x-app-layout>
-    </body>
-    </html>
+        @endsection
+    </div>
+</body>
+</html>

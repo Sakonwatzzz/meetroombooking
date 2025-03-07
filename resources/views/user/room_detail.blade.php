@@ -15,8 +15,8 @@
 
 <body class="bg-gray-100" x-data="{ sidebarOpen: false }">
     @extends('layouts.app')
+    @include('layouts.navigation')
     @section('content')
-        @include('layouts.navigation')
         <div class="container mx-auto my-8 px-4 pt-32">
             <div class="bg-white shadow-lg rounded-lg overflow-hidden flex flex-col md:flex-row">
                 <!-- Section รูปภาพห้อง -->
@@ -54,8 +54,6 @@
                                 class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
                                 จองห้องเลย
                             </button>
-
-
                             <!-- Modal Backdrop and Content -->
                             <div x-show="openBookingModal" x-cloak
                                 class="fixed inset-0 flex items-center justify-center z-50">
@@ -63,10 +61,9 @@
                                 <div class="fixed inset-0 bg-black opacity-50" @click="openBookingModal = false"></div>
 
                                 <!-- Modal Content -->
-                                <div class="bg-white p-6 rounded-lg shadow-lg relative z-10 w-11/12 md:w-1/2">
+                                <div class="bg-white p-6 rounded-lg shadow-lg relative z-10 w-8/12 md:w-2/2">
                                     <h2 class="text-xl font-bold mb-4">แบบฟอร์มจองห้องประชุม</h2>
                                     <!-- ฟอร์มการจองห้อง -->
-
                                     @if ($errors->any())
                                         <div class="bg-red-100 text-red-800 p-4 rounded mb-4">
                                             <ul>
@@ -131,6 +128,11 @@
                                             @foreach (old('book_date', [date('Y-m-d')]) as $index => $book_date)
                                                 <div class="booking-slot mb-4 border p-4 rounded">
                                                     <div class="mb-2">
+                                                        <div class="flex items-start pb-2">
+                                                            <p class="text-gray-700">เวลาที่ระบบได้เปิดให้ทำการจองได้นั้นคือตั้งแต่เวลา </p>
+                                                            <p class="font-bold text-green-600 pl-2">07:00 AM - 18:00 PM </p>
+                                                            <p class="text-gray-700 pl-2">ตามเวลาทำการและเวลาเปิดให้บริการองค์กรของเรา จึงเรียนมาให้ทราบ</p>
+                                                        </div>
                                                         <label for="book_date"
                                                             class="block text-sm font-bold mb-1">วันที่จอง</label>
                                                         <input type="date" name="book_date[]"
@@ -231,7 +233,7 @@
                         <!-- End of Booking Button and Modal -->
                         <div class="mt-6">
                             <a href="{{ route('rooms.index') }}"
-                                class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+                                class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded">
                                 กลับไปหน้ารายการ
                             </a>
                         </div>
