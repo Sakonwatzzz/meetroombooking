@@ -193,6 +193,7 @@ class BookingController extends Controller
     {
 
         $roomId = $request->input('room_id');
+        $currentUserId = auth()->id(); // ดึง user_id ของผู้ใช้ที่ล็อกอิน
         $query = Booking::with('room', 'user');
         Log::info('Room ID filter: ' . $roomId);
         if ($roomId) {
@@ -218,8 +219,11 @@ class BookingController extends Controller
                     'title' => $booking->booktitle,
                     'start' => Carbon::createFromFormat('Y-m-d H:i:s', "{$booking->book_date} {$booking->start_time}")->toIso8601String(),
                     'end' => Carbon::createFromFormat('Y-m-d H:i:s', "{$booking->book_date} {$booking->end_time}")->toIso8601String(),
+                    'backgroundColor' => ($booking->user_id == $currentUserId) ? 'blue' : 'yellow', // สีฟ้าถ้าของตัวเอง, สีเหลืองถ้าของคนอื่น
+                    'borderColor' => ($booking->user_id == $currentUserId) ? 'darkblue' : 'orange', // เส้นขอบ
                     'className' => 'event-color-' . ($booking->room_id % 5),
                     'extendedProps' => [
+                        'user_id' => $booking->user_id,
                         'room' => $booking->room->room_name ?? 'ไม่ระบุห้อง',
                         'username' => $booking->user->username ?? 'ไม่ระบุชื่อผู้จอง',
                         'email' => $booking->email ?? 'ไม่ระบุอีเมล',
@@ -248,8 +252,9 @@ class BookingController extends Controller
 
         // ตรวจสอบว่าได้ข้อมูลการจองหรือไม่
         if ($bookings->isEmpty()) {
-            // ถ้าไม่มีการจอง ให้ส่งข้อความหรือข้อมูลที่เกี่ยวข้อง
-            return response()->json(['message' => 'ไม่มีการจองสำหรับผู้ใช้นี้'], 404);
+            return response()->json([
+                'bookings' => [],
+            ]);
         }
 
         $notifications = Cache::get("user_notifications_{$userId}", []);

@@ -9,6 +9,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\user\BookingController;
 use App\Http\Controllers\admin\AdminBookingController;
 use App\Http\Controllers\user\UserDashboardController;
+use App\Http\Controllers\user\RoomUserController;
 
 
 /*
@@ -66,13 +67,15 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/user/notifications', [UserDashboardController::class, 'getNotifications']);
     Route::get('/user/booking/reject-reason/{booking_id}', [UserDashboardController::class, 'getRejectReason']);
 });
+
+Route::get('/api/rooms', [RoomUserController::class, 'index']);
+
 Route::get('/calendar', [BookingController::class, 'calendar'])->name('calendar');
 Route::get('/get-events', [BookingController::class, 'getEvents'])->name('get-events');
 Route::get('/booking/events', [BookingController::class, 'getEvents'])->name('booking.events');
 Route::get('/book_detail', [BookingController::class, 'detail'])->name('booking.detail');
 
 Route::get('/booking/{booking_id}', [BookingController::class, 'show'])->name('booking.show');
-
 Route::middleware('auth:api')->group(function () {
     Route::get('/booking/{booking_id}', [BookingController::class, 'show']);
     Route::post('/booking/store', [BookingController::class, 'store']);

@@ -61,7 +61,7 @@
     </div>
     <!-- Additional Scripts (จากหน้า child view) -->
     @yield('scripts')
-    <footer class="content bg-sky-500/75">
+    <footer class="content bg-white shadow-md">
         <div class="mx-auto w-full max-w-screen-xl p-4 py-6 lg:py-8">
             <div class="md:flex md:justify-between">
                 <div class="mb-6 md:mb-0 h-22 w-48">

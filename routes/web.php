@@ -92,6 +92,8 @@ Route::middleware('auth:admin')->group(function () {
     Route::get('bookings/events', [BookingController::class, 'getEvents'])->name('admin.bookings.events');
     // Route::get('/admin/dashboard', [AdminBookingController::class, 'calendar'])->name('admin.dashboard');
 });
+Route::get('/rooms', [RoomUserController::class, 'showRooms']);
+Route::get('/rooms', [RoomUserController::class, 'showRooms'])->name('rooms.index');
 
 Route::get('/rooms/{room_id}', [RoomDetailController::class, 'show']);
 Route::get('/rooms/{roomId}', [BookingController::class, 'show'])->name('rooms.show');

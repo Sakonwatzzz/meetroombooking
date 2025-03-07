@@ -13,6 +13,8 @@
 
 <body class="bg-gray-100" x-data="{ sidebarOpen: false }">
     @extends('layouts.app')
+    @yield('content')
+
     @section('content')
         <div class="pb-24">
             @include('layouts.navigation')
@@ -82,8 +84,38 @@
                     </div>
                 @endforeach
             </div>
+            <!-- ใช้ fetch API แสดงห้องประชุมที่อัปเดต -->
+            <ul id="roomList" class="text-sm text-gray-600 mt-2">
+                <!-- ข้อมูลห้องประชุมจะถูกแสดงที่นี่ -->
+            </ul>
         </div>
     @endsection
 </body>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        fetch('/api/rooms') // ใช้ API ที่เราสร้างขึ้น
+            .then(response => response.json()) // แปลงข้อมูลที่ได้รับเป็น JSON
+            .then(data => {
+                const roomList = document.getElementById('roomList');
+                roomList.innerHTML = ''; // เคลียร์ข้อมูลเดิม
+
+                if (data.length === 0) {
+                    roomList.innerHTML = '<li class="text-gray-400">ไม่มีห้องประชุม</li>';
+                } else {
+                    data.forEach(room => {
+                        const roomItem = `
+                        <li class="text-green-500">${room.room_name}</li>
+                    `;
+                        roomList.innerHTML += roomItem;
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching rooms:', error);
+                const roomList = document.getElementById('roomList');
+                roomList.innerHTML = '<li class="text-red-500">เกิดข้อผิดพลาดในการดึงข้อมูลห้องประชุม</li>';
+            });
+    });
+</script>
 
 </html>

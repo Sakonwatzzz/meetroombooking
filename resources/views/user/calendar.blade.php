@@ -5,21 +5,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <title>Calendar</title>
+
+    <!-- Bootstrap 5 (เลือกโหลดแค่เวอร์ชันเดียว) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- FullCalendar -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.0/main.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.0/main.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.0/locales/th.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.0/main.min.css" rel="stylesheet">
-    <link rel="dns-prefetch" href="//unpkg.com" />
-    <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
-    <link rel="stylesheet" href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css">
-    <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.js" defer></script>
+
+    <!-- Tailwind CSS (เวอร์ชันใหม่) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Alpine.js (เลือกโหลดแค่ตัวเดียว) -->
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@2.8.2/dist/alpine.min.js" defer></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=2">
 
+    <!-- DNS Prefetch (ไม่จำเป็นต้องใส่สำหรับ unpkg และ jsdelivr) -->
 
-
+    <script>
+        let currentUserId = @json(auth()->id());
+    </script>
 </head>
+
 <style>
     .my-event-class {
         border-radius: 10px;
@@ -29,7 +39,7 @@
     .modal-header {
         background: #f1f1f1;
         padding: 15px;
-        border-radius: 12px 12px 0 0;
+        border-radius: 12px;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -133,16 +143,12 @@
     p {
         font-size: 1.1rem;
         margin: 5px 0;
-        border-bottom: 3px solid rgb(0, 68, 255);
     }
 
     strong {
         font-weight: bold;
 
     }
-
-
-
 
     .my-event-class {
         background: linear-gradient(135deg, #ff7eb3, #ff758c);
@@ -218,15 +224,74 @@
             display: block;
         }
     }
+
+    /* ปรับปุ่ม Toolbar */
+    .fc-toolbar-chunk button {
+        background-color: #28a745 !important;
+        /* สีเขียว */
+        color: white !important;
+        border-radius: 15px !important;
+        padding: 8px 12px !important;
+        border: none !important;
+        margin-right: 10px !important;
+        /* เพิ่มระยะห่าง */
+    }
+
+    .fc-toolbar-chunk button:hover {
+        background-color: #218838 !important;
+    }
+
+    /* ปรับแถบหัวปฏิทิน */
+    .fc-toolbar {
+        background-color: #f8f9fa !important;
+        padding: 10px !important;
+        border-bottom: 2px solid #ddd !important;
+    }
+
+    .fc-toolbar h2 {
+        font-size: 20px !important;
+        font-weight: bold;
+        color: #333;
+    }
+
+    /* จัดขนาดปฏิทิน */
+    #calendar {
+        width: 50%;
+        max-width: auto;
+        margin: auto;
+    }
+
+    /* ปรับแต่งป้ายอีเวนต์ให้เป็นโค้งมน */
+    .fc-event {
+        border-radius: 12px !important;
+        padding: 6px 10px !important;
+        font-weight: bold;
+        font-size: 14px;
+    }
 </style>
 
 <body class="bg-gray-100" x-data="{ sidebarOpen: false }">
     @extends('layouts.app')
-    @include('layouts.navigation')
+    <div class="pb-36">
+        @include('layouts.navigation')
+    </div>
     @section('content')
-        <div class="antialiased sans-serif h-screen pt-6">
-            <div class="flex flex-col items-center">
-                <div id="calendar" class="mx-auto px-4 py-2 md:py-24 rounded-lg shadow-md p-6 w-[50%]"></div>
+        <div class="antialiased sans-serif h-screen">
+            <div class="flex flex-col items-center ">
+                <!-- กล่องแสดงสถานะการจอง -->
+                <div class="flex items-center space-x-4 mb-4">
+                    <p class="text-sm font-medium flex items-center">
+                        <span class="w-4 h-4 inline-block bg-yellow-400 rounded-full mr-2"></span>
+                        หมายถึงสีสถานะการจองของผู้ใช้ท่านอื่น
+                    </p>
+                    <p class="text-sm font-medium flex items-center">
+                        <span class="w-4 h-4 inline-block bg-blue-400 rounded-full mr-2"></span>
+                        หมายถึงสีสถานะการจองของตัวเอง
+                    </p>
+                </div>
+                <!-- ปฏิทิน -->
+                <div id="calendar" class="mx-auto py-2 md:py-24 rounded-lg shadow-md p-6">
+                </div>
             </div>
             <!-- Modal for Event Details -->
             <div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
@@ -262,19 +327,53 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var calendarEl = document.getElementById('calendar');
-
             var calendar = new FullCalendar.Calendar(calendarEl, {
                 locale: 'th', // ใช้ภาษาไทย
                 initialView: 'dayGridMonth', // เริ่มต้นแสดงเป็นเดือน
                 eventClass: 'my-event-class',
-                eventTextColor: 'white', //
-                eventBackgroundColor: '#0080ff',
+                eventTextColor: 'black', //
+                eventBackgroundColor: '#FF66CC',
                 events: '/get-events',
+                eventDidMount: function(info) {
+                    let eventType = info.event.extendedProps.labelType; // ประเภทของป้าย
+                    let labelColors = {
+                        "red": "#ff4d4d", // สีแดง
+                        "green": "#28a745", // สีเขียว
+                        "blue": "#007bff", // สีฟ้า
+                        "yellow": "#ffc107", // สีเหลือง
+                        "gray": "#6c757d" // สีเทา
+                    };
+
+                    let eventUserId = info.event.extendedProps.user_id;
+                    let currentUserId = @json(auth()->id());
+
+                    // เปลี่ยนสีพื้นหลังของป้ายตามประเภท
+                    let eventColor = labelColors[eventType] || "#dcdcdc";
+
+                    // ถ้าผู้ใช้ที่ล็อกอินเป็นเจ้าของอีเวนต์ จะเปลี่ยนสีให้แตกต่าง
+                    if (eventUserId == currentUserId) {
+                        eventColor = "#007bff"; // สีฟ้าสำหรับเจ้าของอีเวนต์
+                        info.el.style.color = "white";
+                    } else {
+                        eventColor = "yellow"; // สีเหลืองสำหรับอีเวนต์ของคนอื่น
+                        info.el.style.color = "black";
+                    }
+
+                    // ใช้ CSS เปลี่ยนสีพื้นหลังของอีเวนต์
+                    info.el.style.backgroundColor = eventColor;
+                    info.el.style.borderRadius = "10px";
+                    info.el.style.padding = "5px 8px";
+                    info.el.style.textAlign = "center";
+
+                    // เพิ่ม Tooltip แสดงรายละเอียด
+                    info.el.setAttribute('title', info.event.title + " (" + eventType + ")");
+                },
                 headerToolbar: { // เพิ่มส่วนหัวสำหรับการเลือกมุมมอง (เช่น เดือน, สัปดาห์, วัน)
                     left: 'prev,next today', // ปุ่มก่อนหน้า, ถัดไป, วันนี้
                     center: 'title', // ชื่อเดือน
                     right: 'dayGridMonth,timeGridWeek,timeGridDay', // ปุ่มมุมมองเดือน, สัปดาห์, วัน
                 },
+                themeSystem: 'bootstrap5',
                 buttonText: {
                     today: 'วันนี้',
                     month: 'เดือน',
@@ -311,7 +410,7 @@
 
                 }
             });
-            calendar.render();;
+            calendar.render();
             // ฟังก์ชันแสดง Modal
             function openEventModal(info) {
                 const modalData = document.querySelector('[x-data]');
