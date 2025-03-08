@@ -21,7 +21,7 @@
 
     <!-- Alpine.js (เลือกโหลดแค่ตัวเดียว) -->
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@2.8.2/dist/alpine.min.js" defer></script>
-    <link rel="stylesheet" href="styles.css?v=2">
+    <link rel="stylesheet" href="{{ mix('resources/css/app.css') }}">
 
     <!-- DNS Prefetch (ไม่จำเป็นต้องใส่สำหรับ unpkg และ jsdelivr) -->
 
@@ -31,198 +31,305 @@
 </head>
 
 <style>
+    /* สไตล์หลักสำหรับระบบการจองห้องประชุม */
     .my-event-class {
-        border-radius: 10px;
-        font-weight: bold;
+        border-radius: 8px;
+        font-weight: 600;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
     }
 
+    .my-event-class:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Modal Header สไตล์ */
     .modal-header {
-        background: #f1f1f1;
-        padding: 15px;
-        border-radius: 12px;
+        background: linear-gradient(to right, #2c3e50, #3498db);
+        padding: 18px 25px;
+        border-radius: 12px 12px 0 0;
+        border-bottom: 1px solid #e0e0e0;
         display: flex;
-        justify-content: space-between;
-        align-items: center;
-        justify-items: center;
         justify-content: center;
-        align-content: center;
+        align-items: center;
     }
 
-    /* Modal styles */
+    .modal-header h5 {
+        color: #ffffff;
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin: 0;
+        letter-spacing: 0.5px;
+    }
+
+    .modal-header .btn-close {
+        color: white;
+        opacity: 0.8;
+        transition: opacity 0.2s;
+    }
+
+    .modal-header .btn-close:hover {
+        opacity: 1;
+    }
+
+    /* Modal สไตล์หลัก */
     .modal {
         display: none;
         position: fixed;
-        /* z-index: -1; */
         left: 0;
         top: 0;
         width: 100%;
         height: 100%;
         overflow: auto;
-        background-color: rgba(0, 0, 0, 0.5);
+        background-color: rgba(0, 0, 0, 0.6);
         backdrop-filter: blur(5px);
+        display: flex;
         align-items: center;
-        justify-items: center;
         justify-content: center;
-        align-content: center;
+        z-index: 1050;
     }
 
     .modal-content {
-        background: linear-gradient(135deg, #ffffff, #f9f9f9);
+        background: #ffffff;
         border-radius: 12px;
-        box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.3);
-        padding: 20px;
-        width: 500px;
-        max-width: 200%;
-        /* ลดความกว้างลงให้ดูพอดี */
-        /* ให้ responsive กับหน้าจอ */
-        text-align: left;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        width: 550px;
+        max-width: 90%;
         position: relative;
-        animation: fadeIn 0.3s ease-in-out;
+        animation: modalFadeIn 0.4s ease-out;
+        border: none;
     }
 
-    .modal-body {
-        padding: 10px;
-        flex-direction: column;
-        gap: 5px;
+    @keyframes modalFadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
 
-        /* เพิ่มระยะห่างของข้อความ */
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Modal Body สไตล์ */
+    .modal-body {
+        padding: 25px 30px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .title-div {
+        margin-bottom: 15px;
+        border-bottom: 1px solid #eaeaea;
+        padding-bottom: 15px;
+    }
+
+    .title-div h4 {
+        font-size: 1.4rem;
+        color: #2c3e50;
+        font-weight: 600;
+        margin: 0;
+        word-wrap: break-word;
     }
 
     .modal-body p {
         display: flex;
         justify-content: space-between;
-        align-items: center;
-        font-size: 1.1rem;
-        padding: 8px;
+        align-items: flex-start;
+        font-size: 1.05rem;
+        padding: 10px;
+        margin: 0;
         border-radius: 8px;
         color: #333;
-        flex-wrap: wrap;
-        /* ให้ข้อความขึ้นบรรทัดใหม่หากเกินขนาด */
-        white-space: normal;
-        /* ป้องกันข้อความยาวเกินไป */
-        word-wrap: break-word;
-        /* ให้ขึ้นบรรทัดใหม่หากข้อความยาว */
+        background-color: #f8f9fa;
+        transition: background-color 0.3s ease;
+    }
+
+    .modal-body p:hover {
+        background-color: #f0f4f8;
     }
 
     .modal-body strong {
-        font-weight: bold;
-        color: #000000;
+        font-weight: 600;
+        color: #2c3e50;
+        min-width: 120px;
     }
 
     .modal-body span {
-        font-weight: 500;
-        color: #222;
+        font-weight: 400;
+        color: #3a3a3a;
+        text-align: right;
+        flex-grow: 1;
+        word-break: break-word;
     }
 
+    /* ปรับแต่งสถานะการจอง */
+    #eventStatus {
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 20px;
+        display: inline-block;
+    }
+
+    /* สีสถานะต่างๆ (คุณสามารถปรับใช้ในโค้ด JavaScript) */
+    .status-confirmed {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .status-pending {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+
+    .status-canceled {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+
+    /* Close Button สไตล์ */
     .close-btn {
-        color: #aaa;
-        font-size: 28px;
+        color: white;
+        font-size: 24px;
         font-weight: bold;
         position: absolute;
-        top: 10px;
+        top: 15px;
         right: 20px;
+        opacity: 0.7;
+        transition: all 0.2s;
     }
 
     .close-btn:hover {
-        color: #ff5e00;
+        color: #fff;
+        opacity: 1;
         cursor: pointer;
     }
 
-    .close-btn:focus {
-        color: black;
-        text-decoration: none;
-        cursor: pointer;
-    }
-
-    /* Content styling */
-    h4 {
-        font-size: 1.5rem;
-        margin-bottom: 20px;
-    }
-
-    p {
-        font-size: 1.1rem;
-        margin: 5px 0;
-    }
-
-    strong {
-        font-weight: bold;
-
-    }
-
-    .my-event-class {
-        background: linear-gradient(135deg, #ff7eb3, #ff758c);
-        border-radius: 10px;
-        font-weight: bold;
-        color: white;
-        padding: 5px;
-    }
-
-    @keyframes fadeIn {
-        from {
-            transform: translateY(-30px);
-            opacity: 0;
-        }
-
-        to {
-            transform: translateY(0);
-            opacity: 1;
-        }
-    }
-
+    /* Modal Footer สไตล์ */
     .modal-footer {
-        width: 50px;
-        background-color: #ff4d4d;
-        color: white;
-        border-radius: 20px;
-        padding: 8px 15px;
-        font-size: 16px;
+        padding: 15px 25px;
+        border-top: 1px solid #eaeaea;
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+    }
+
+    .modal-footer button {
+        padding: 10px 25px;
+        border-radius: 6px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        border: none;
         cursor: pointer;
-        display: inline-block;
-        margin-top: 15px;
-        transition: 0.3s;
-        display: flex;
-        justify-content: center;
-        align-items: center;
     }
 
-    .modal-body h4 {
-        border-radius: 13px;
-        color: #0d9c00;
-        display: flex;
-        font-size: 20px;
-        justify-content: center;
-        align-items: center;
-        height: 25px;
-        width: auto;
+    .modal-footer button[data-bs-dismiss="modal"] {
+        background-color: #3498db;
+        color: white;
     }
 
-    .modal-title {
-        font-size: 30px;
+    .modal-footer button[data-bs-dismiss="modal"]:hover {
+        background-color: #2980b9;
+        transform: translateY(-2px);
     }
 
-    @media (max-width: 768px) {
+    /* เพิ่ม Responsive */
+    @media (max-width: 576px) {
         .modal-content {
             width: 95%;
-            max-width: 90%;
-            padding: 15px;
-        }
-
-        .modal-title {
-            font-size: 24px;
         }
 
         .modal-body p {
-            font-size: 1rem;
             flex-direction: column;
-            /* ให้ strong และ span อยู่คนละบรรทัด */
-            text-align: left;
+            align-items: flex-start;
         }
 
         .modal-body strong {
-            min-width: 100%;
-            display: block;
+            margin-bottom: 5px;
         }
+
+        .modal-body span {
+            width: 100%;
+            text-align: left;
+        }
+    }
+
+    /* เพิ่ม CSS เพื่อปรับแต่งส่วนของปฏิทิน FullCalendar */
+    .fc .fc-toolbar-title {
+        font-size: 1.5rem;
+        color: #2c3e50;
+        font-weight: 600;
+    }
+
+    .fc .fc-button-primary {
+        background-color: #3498db;
+        border-color: #3498db;
+        transition: all 0.3s ease;
+    }
+
+    .fc .fc-button-primary:hover {
+        background-color: #2980b9;
+        border-color: #2980b9;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .fc .fc-button-primary:not(:disabled).fc-button-active,
+    .fc .fc-button-primary:not(:disabled):active {
+        background-color: #2c3e50;
+        border-color: #2c3e50;
+    }
+
+    .fc-day-today {
+        background-color: rgba(52, 152, 219, 0.1) !important;
+    }
+
+    .booking-card {
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        border: 1px solid #eaeaea;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .booking-card .card-title {
+        color: #2c3e50;
+        font-weight: 600;
+    }
+
+    .booking-card .text-muted strong {
+        color: #34495e;
+        font-weight: 600;
+    }
+
+    /* สไตล์สำหรับสถานะในรายการการจองล่าสุด */
+    .booking-card .status-confirmed {
+        background-color: #d4edda;
+        color: #155724;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .booking-card .status-pending {
+        background-color: #fff3cd;
+        color: #856404;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .booking-card .status-canceled {
+        background-color: #f8d7da;
+        color: #721c24;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 500;
     }
 
     /* ปรับปุ่ม Toolbar */
@@ -294,11 +401,11 @@
                 </div>
             </div>
             <!-- Modal for Event Details -->
-            <div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
-                <div class="modal-dialog">
+            <div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" inert="true">
+                <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="eventModalLabel">รายละเอียดการจอง</h5>
+                            <h5 class="modal-title" id="eventModalLabel">รายละเอียดการจองห้องประชุม</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
@@ -312,10 +419,10 @@
                             <p><strong>เวลาสิ้นสุด:</strong> <span id="eventEndTime"></span></p>
                             <p><strong>รายละเอียด:</strong> <span id="eventDetails"></span></p>
                             <p><strong>เบอร์ติดต่อ:</strong> <span id="eventContact"></span></p>
-                            <p><strong>สถานะการจอง:</strong> <span id="eventStatus"></span></p>
+                            <p><strong>สถานะการจอง:</strong> <span id="eventStatus" class="status-confirmed"></span></p>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="" data-bs-dismiss="modal">ปิด</button>
+                            <button type="button" class="btn" data-bs-dismiss="modal">ปิด</button>
                         </div>
                     </div>
                 </div>
@@ -330,8 +437,8 @@
             var calendar = new FullCalendar.Calendar(calendarEl, {
                 locale: 'th', // ใช้ภาษาไทย
                 initialView: 'dayGridMonth', // เริ่มต้นแสดงเป็นเดือน
-                eventClass: 'my-event-class',
-                eventTextColor: 'black', //
+                eventClassNames: 'my-event-class',
+                eventTextColor: 'black',
                 eventBackgroundColor: '#FF66CC',
                 events: '/get-events',
                 eventDidMount: function(info) {
@@ -361,9 +468,22 @@
 
                     // ใช้ CSS เปลี่ยนสีพื้นหลังของอีเวนต์
                     info.el.style.backgroundColor = eventColor;
-                    info.el.style.borderRadius = "10px";
+                    info.el.style.borderRadius = "8px"; // ปรับให้เข้ากับสไตล์ใหม่
                     info.el.style.padding = "5px 8px";
                     info.el.style.textAlign = "center";
+                    info.el.style.boxShadow = "0 2px 4px rgba(0, 0, 0, 0.1)"; // เพิ่มเงาเล็กน้อย
+                    info.el.style.transition = "all 0.3s ease"; // เพิ่ม transition สำหรับ hover effect
+
+                    // เพิ่ม hover effect โดยใช้ addEventListener
+                    info.el.addEventListener('mouseenter', function() {
+                        this.style.transform = "translateY(-2px)";
+                        this.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.15)";
+                    });
+
+                    info.el.addEventListener('mouseleave', function() {
+                        this.style.transform = "translateY(0)";
+                        this.style.boxShadow = "0 2px 4px rgba(0, 0, 0, 0.1)";
+                    });
 
                     // เพิ่ม Tooltip แสดงรายละเอียด
                     info.el.setAttribute('title', info.event.title + " (" + eventType + ")");
@@ -383,15 +503,12 @@
                 eventClick: function(info) {
                     // ฟังก์ชันจัดการการคลิก event
                     var modal = new bootstrap.Modal(document.getElementById('eventModal'));
-                    // เปิด Modal
-                    modal.show();
-                    document.getElementById('eventModal').style.display = 'block';
 
                     // อัพเดตข้อมูลใน Modal
                     document.getElementById('eventTitle').textContent = info.event.title;
                     document.getElementById('eventRoom').textContent = info.event.extendedProps.room;
                     document.getElementById('eventUser').textContent = info.event.extendedProps
-                        .username;
+                    .username;
                     document.getElementById('eventDate').textContent = info.event.extendedProps
                         .book_date;
                     document.getElementById('eventStartTime').textContent = info.event.extendedProps
@@ -402,53 +519,68 @@
                         .bookdetail;
                     document.getElementById('eventContact').textContent = info.event.extendedProps
                         .booktel;
-                    document.getElementById('eventStatus').textContent = info.event.extendedProps
-                        .bookstatus;
+
+                    // อัพเดตสถานะและเพิ่ม class ตามสถานะ
+                    const eventStatus = info.event.extendedProps.bookstatus;
+                    const statusElement = document.getElementById('eventStatus');
+
+                    // ลบคลาสเดิมทั้งหมด
+                    statusElement.classList.remove('status-confirmed', 'status-pending',
+                        'status-canceled');
+
+                    // เพิ่มคลาสตามสถานะ
+                    if (eventStatus.includes('อนุมัติ') || eventStatus.toLowerCase().includes(
+                            'confirmed')) {
+                        statusElement.classList.add('status-confirmed');
+                    } else if (eventStatus.includes('รออนุมัติ') || eventStatus.toLowerCase().includes(
+                            'pending')) {
+                        statusElement.classList.add('status-pending');
+                    } else if (eventStatus.includes('ยกเลิก') || eventStatus.toLowerCase().includes(
+                            'canceled')) {
+                        statusElement.classList.add('status-canceled');
+                    }
+
+                    statusElement.textContent = eventStatus;
+
+                    // เปิด Modal
+                    modal.show();
+
+                    // เพิ่ม event listener สำหรับปุ่มปิด (ถ้ามี)
+                    const closeBtn = document.querySelector('.close-btn');
+                    if (closeBtn) {
+                        closeBtn.addEventListener('click', function() {
+                            modal.hide();
+                        });
+                    }
+
+                    // เพิ่ม event listener สำหรับปุ่มปิดใน footer
                     document.getElementById('closeModalButton')?.addEventListener('click', function() {
                         modal.hide();
                     });
-
                 }
             });
+
             calendar.render();
-            // ฟังก์ชันแสดง Modal
-            function openEventModal(info) {
-                const modalData = document.querySelector('[x-data]');
-                modalData.__x.$data.open = true;
 
-                // Set modal content using Alpine.js reactive properties
-                modalData.__x.$data.eventTitle = info.event.title;
-                modalData.__x.$data.eventRoom = info.event.extendedProps.room;
-                modalData.__x.$data.eventUser = info.event.extendedProps.username || '-';
-                modalData.__x.$data.eventDescription = info.event.extendedProps.bookdetail || '-';
-                modalData.__x.$data.eventContact = info.event.extendedProps.booktel || '-';
-                modalData.__x.$data.eventStatus = info.event.extendedProps.bookstatus || '-';
-
-                const eventDate = new Date(info.event.start).toLocaleDateString('th-TH', {
+            // Function to format date และ time ให้สวยงาม
+            function formatThaiDate(dateStr) {
+                const date = new Date(dateStr);
+                return date.toLocaleDateString('th-TH', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric'
                 });
-                document.querySelector('[x-data]').__x.$data.eventDate = eventDate;
+            }
 
-                const startTime = new Date(info.event.start).toLocaleTimeString('th-TH', {
+            function formatTime(dateStr) {
+                const date = new Date(dateStr);
+                return date.toLocaleTimeString('th-TH', {
                     hour: '2-digit',
                     minute: '2-digit',
                     hour12: false
                 });
-                const endTime = new Date(info.event.end).toLocaleTimeString('th-TH', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: false
-                });
-                modalData.__x.$data.eventTime = `${startTime} - ${endTime}`;
             }
-            // Function to show the alert modal
-            function showAlertModal(info) {
-                const alertModal = document.querySelector('[x-data]');
-                alertModal.__x.$data.alertOpen = true;
-                alertModal.__x.$data.alertMessage = `คุณได้คลิกที่การจอง: ${info.event.title}`;
-            }
+
             // โหลดรายการจองล่าสุด
             function loadLatestBookings() {
                 fetch("{{ route('get-events') }}")
@@ -476,8 +608,24 @@
                                 minute: '2-digit',
                                 hour12: false
                             });
+
+                            // สร้าง class สำหรับแสดงสถานะด้วยสี
+                            let statusClass = '';
+                            const status = booking.extendedProps.bookstatus;
+
+                            if (status.includes('อนุมัติ') || status.toLowerCase().includes(
+                                'confirmed')) {
+                                statusClass = 'status-confirmed';
+                            } else if (status.includes('รออนุมัติ') || status.toLowerCase().includes(
+                                    'pending')) {
+                                statusClass = 'status-pending';
+                            } else if (status.includes('ยกเลิก') || status.toLowerCase().includes(
+                                    'canceled')) {
+                                statusClass = 'status-canceled';
+                            }
+
                             html += `
-                                <div class="card mb-2">
+                                <div class="card mb-2 booking-card">
                                     <div class="card-body p-3">
                                         <h6 class="card-title">${booking.title}</h6>
                                         <div class="small text-muted">
@@ -485,6 +633,7 @@
                                             <div><strong>วันที่:</strong> ${formattedDate}</div>
                                             <div><strong>เวลา:</strong> ${startTime}</div>
                                             <div><strong>ผู้จอง:</strong> ${booking.extendedProps.username || '-'}</div>
+                                            <div><strong>สถานะ:</strong> <span class="${statusClass}">${status}</span></div>
                                         </div>
                                     </div>
                                 </div>
@@ -492,6 +641,22 @@
                         });
 
                         document.getElementById('latest-bookings').innerHTML = html;
+
+                        // เพิ่ม animation และ hover effects ให้กับการ์ดการจอง
+                        const bookingCards = document.querySelectorAll('.booking-card');
+                        bookingCards.forEach(card => {
+                            card.style.transition = "all 0.3s ease";
+
+                            card.addEventListener('mouseenter', function() {
+                                this.style.transform = "translateY(-3px)";
+                                this.style.boxShadow = "0 6px 12px rgba(0, 0, 0, 0.1)";
+                            });
+
+                            card.addEventListener('mouseleave', function() {
+                                this.style.transform = "translateY(0)";
+                                this.style.boxShadow = "0 1px 3px rgba(0, 0, 0, 0.1)";
+                            });
+                        });
                     })
                     .catch(error => {
                         console.error('Error fetching bookings:', error);
@@ -500,23 +665,24 @@
                     });
             }
 
-            // loadLatestBookings();
-
             // อัปเดตปฏิทินเมื่อเปลี่ยนค่าห้อง
-            document.getElementById('month-view').addEventListener('click', function() {
+            document.getElementById('month-view')?.addEventListener('click', function() {
                 calendar.changeView('dayGridMonth');
                 calendar.refetchEvents();
             });
 
-            document.getElementById('week-view').addEventListener('click', function() {
+            document.getElementById('week-view')?.addEventListener('click', function() {
                 calendar.changeView('timeGridWeek');
                 calendar.refetchEvents();
             });
 
-            document.getElementById('day-view').addEventListener('click', function() {
+            document.getElementById('day-view')?.addEventListener('click', function() {
                 calendar.changeView('timeGridDay');
                 calendar.refetchEvents();
             });
+
+            // โหลดรายการจองล่าสุดเมื่อโหลดหน้า (uncomment ถ้าต้องการใช้งาน)
+            // loadLatestBookings();
         });
     </script>
 @endsection

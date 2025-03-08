@@ -26,9 +26,9 @@ use App\Http\Controllers\User\UserDashboardController;
 |
 */
 
-Route::get('/resources/css/app.css', function () {
-    return response()->file(public_path('resources/css/app.css'));
-})->middleware('cache-control');
+// Route::get('/resources/css/app.css', function () {
+//     return response()->file(public_path('resources/css/app.css'));
+// })->middleware('cache-control');
 Route::get('/', function () {
     return redirect()->route('login');
 });

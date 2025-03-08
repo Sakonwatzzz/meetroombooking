@@ -85,6 +85,7 @@ class BookingController extends Controller
 
             // ตรวจสอบการทับซ้อนของเวลา
             $existingBooking = Booking::where('room_id', $validated['room_id'])
+                ->where('user_id', auth()->id())
                 ->whereDate('book_date', $book_date)
                 ->where(function ($query) use ($start_time, $end_time) {
                     $query->whereBetween('start_time', [$start_time, $end_time])
@@ -98,10 +99,7 @@ class BookingController extends Controller
 
             // ถ้าพบการจองที่ทับซ้อน
             if ($existingBooking) {
-                return response()->json([
-                    'success' => false,
-                    'message' => "ห้องนี้ถูกจองแล้วในวันที่ " . $book_date . " กรุณาลองเลือกวันที่อื่น"
-                ], 422);
+                return redirect()->back()->withErrors(['message' => "ห้องนี้ถูกจองแล้วในวันที่ " . $book_date . " กรุณาลองเลือกวันที่อื่น"]);
             }
         }
 

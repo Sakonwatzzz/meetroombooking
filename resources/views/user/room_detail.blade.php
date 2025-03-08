@@ -10,6 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
+
 <body class="bg-gray-100" x-data="{ sidebarOpen: false }">
     @extends('layouts.app')
     @include('layouts.navigation')
@@ -126,9 +127,13 @@
                                                 <div class="booking-slot mb-4 border p-4 rounded">
                                                     <div class="mb-2">
                                                         <div class="flex items-start pb-2">
-                                                            <p class="text-gray-700">เวลาที่ระบบได้เปิดให้ทำการจองได้นั้นคือตั้งแต่เวลา </p>
-                                                            <p class="font-bold text-green-600 pl-2">07:00 AM - 18:00 PM </p>
-                                                            <p class="text-gray-700 pl-2">ตามเวลาทำการและเวลาเปิดให้บริการองค์กรของเรา จึงเรียนมาให้ทราบ</p>
+                                                            <p class="text-gray-700">
+                                                                เวลาที่ระบบได้เปิดให้ทำการจองได้นั้นคือตั้งแต่เวลา </p>
+                                                            <p class="font-bold text-green-600 pl-2">07:00 AM - 18:00 PM
+                                                            </p>
+                                                            <p class="text-gray-700 pl-2">
+                                                                ตามเวลาทำการและเวลาเปิดให้บริการองค์กรของเรา
+                                                                จึงเรียนมาให้ทราบ</p>
                                                         </div>
                                                         <label for="book_date"
                                                             class="block text-sm font-bold mb-1">วันที่จอง</label>
@@ -240,9 +245,21 @@
                 @endif
             </div>
         </div>
-
     @endsection
 </body>
+@if ($errors->any())
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            Swal.fire({
+                title: 'พบข้อผิดพลาด!',
+                html: `{!! implode('<br>', $errors->all()) !!}`,
+                icon: 'error',
+                confirmButtonText: 'ตกลง'
+            });
+        });
+    </script>
+@endif
+
 <script>
     // Check if there is a success session and show modal if necessary
     @if (session('success'))
