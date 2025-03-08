@@ -15,10 +15,16 @@ class AdminDashboardController extends Controller
 
     public function index()
     {
+        $pendingCount = Booking::where('bookstatus', 'pending')->count();
+        $approvedCount = Booking::where('bookstatus', 'approved')->count();
+        $rejectedCount = Booking::where('bookstatus', 'rejected')->count();
+
+        dd($pendingCount, $approvedCount, $rejectedCount); // ตรวจสอบผลลัพธ์
+
         return view('admin.dashboard', [
-            'pendingCount' => Booking::where('bookstatus', 'pending')->count(),
-            'approvedCount' => Booking::where('bookstatus', 'approved')->count(),
-            'rejectedCount' => Booking::where('bookstatus', 'rejected')->count(),
+            'pendingCount' => $pendingCount,
+            'approvedCount' => $approvedCount,
+            'rejectedCount' => $rejectedCount,
         ]);
     }
 }

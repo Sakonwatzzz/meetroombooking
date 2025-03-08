@@ -4,16 +4,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <title>Admin Login</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
 </head>
 
 <body class="bg-gray-100">
     <div class="flex justify-center items-center min-h-screen px-4">
         <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md sm:w-96 md:w-[32rem]">
             <div class="flex justify-center">
-                <img src="/images/logo-meetroom-booking-Photoroom.png" class="w-32 h-32 sm:w-48 sm:h-48 md:w-64 md:h-64 mx-auto">
+                <img src="/images/logo-meetroom-booking-Photoroom.png"
+                    class="w-32 h-32 sm:w-48 sm:h-48 md:w-64 md:h-64 mx-auto">
             </div>
             <h2 class="text-2xl font-semibold text-center text-gray-700 mb-6">Admin Login</h2>
 
@@ -52,25 +56,42 @@
             let email = document.getElementById('email').value;
             let password = document.getElementById('password').value;
 
+            // ตรวจสอบว่า CSRF token มีอยู่ใน meta tag หรือไม่
+            let csrfToken = document.head.querySelector('meta[name="csrf-token"]').content;
+
             axios.post('/api/admin/login', {
                     email: email,
                     password: password
+                }, {
+                    headers: {
+                        'X-CSRF-TOKEN': getCookie('XSRF-TOKEN'), // ดึงค่า XSRF-TOKEN จาก Cookie
+                    }
                 })
                 .then(response => {
                     if (response.data.token) {
-                        localStorage.setItem('admin_token', response.data.token); // บันทึก Token ของ Admin
+                        localStorage.setItem('admin_token', response.data.token); // บันทึก Token
                         window.location.href = '/admin/dashboard'; // Redirect ไป Dashboard
-                    } else {
-                        throw new Error("Token not received");
                     }
                 })
                 .catch(error => {
                     document.getElementById('error-message').classList.remove('hidden');
                     document.getElementById('error-message').innerText = "Invalid email or password.";
                 });
+
+
         }
     </script>
+    <script>
+        // ฟังก์ชัน getCookie
+        function getCookie(name) {
+            let match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+            if (match) return match[2];
+        }
 
+        // การใช้งาน
+        let csrfToken = getCookie('XSRF-TOKEN');
+        console.log(csrfToken); // แสดงค่า XSRF-TOKEN ในคอนโซล
+    </script>
 </body>
 
 </html>

@@ -26,8 +26,24 @@ use App\Http\Controllers\User\UserDashboardController;
 |
 */
 
+Route::get('/resources/css/app.css', function () {
+    return response()->file(public_path('resources/css/app.css'));
+})->middleware('cache-control');
+
+// ใน web.php
 Route::get('/', function () {
-    return redirect()->route('login');
+    return redirect()->route('login');  // หรือ return view('auth.login');
+});
+// Authentication routes (if missing)
+Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [AdminAuthController::class, 'login']);
+Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
+// เส้นทาง login
+Route::get('/login', function () {
+    return view('auth.login');  // เส้นทางนี้จะต้องชี้ไปยัง resources/views/auth/login.blade.php
+})->name('login');
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/admin/dashboard', [AdminDashboardController::class, 'index']);
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -66,9 +82,9 @@ Route::get('/user/myBooking', [BookingController::class, 'myBookings'])->name('u
 Route::get('/user/bookings/{bookId}/reject-reason', [BookingController::class, 'getRejectReason']);
 
 Route::prefix('admin')->name('admin.')->group(function () {
-    Route::get('login', [AdminAuthController::class, 'showLoginForm'])->name('login');
-    Route::post('login', [AdminAuthController::class, 'login']);
-    Route::post('logout', [AdminAuthController::class, 'logout'])->middleware('auth:sanctum');
+    // Route::get('login', [AdminAuthController::class, 'showLoginForm'])->name('login');
+    // Route::post('login', [AdminAuthController::class, 'login']);
+    // Route::post('logout', [AdminAuthController::class, 'logout'])->middleware('auth:sanctum');
 
     Route::middleware('auth:admin')->group(function () {
         Route::get('dashboard', function () {
