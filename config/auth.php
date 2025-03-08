@@ -45,14 +45,15 @@ return [
             'provider' => 'admins',
         ],
         'admin-api' => [
-            'driver' => 'sanctum',
-            'provider' => 'admins'
+            'driver' => 'sanctum',   // ให้ใช้ sanctum
+            'provider' => 'admins',
         ],
         'api' => [
             'driver' => 'sanctum',
             'provider' => 'users',
         ],
     ],
+
 
 
     /*
@@ -79,14 +80,10 @@ return [
         ],
         'admins' => [
             'driver' => 'eloquent',
-            'model' => App\Models\Admin::class,
-        ]
-
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
+            'model' => App\Models\Admin::class,  // ใช้โมเดล Admin ที่ถูกต้อง
+        ],
     ],
+
 
     /*
     |--------------------------------------------------------------------------

@@ -41,7 +41,7 @@ class Kernel extends HttpKernel
         'api' => [
             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
             'throttle:api',
-            'auth:api',
+            'auth:admin-api',  // เปลี่ยนจาก 'auth:api' เป็น 'auth:admin-api'
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
 
@@ -72,7 +72,6 @@ class Kernel extends HttpKernel
         'admin.auth' => \App\Http\Middleware\AdminMiddleware::class,
         'cache-control' => \App\Http\Middleware\CacheControlHeader::class,
         'auth' => \App\Http\Middleware\Authenticate::class,
-
-
+        'auth.admin' => \App\Http\Middleware\Authenticate::class,  // เพิ่ม auth.admin ถ้าจำเป็น
     ];
 }

@@ -542,41 +542,41 @@
     }
 
 
-    function submitComment() {
-        const commentText = document.getElementById("comment-text").value.trim();
-        const bookingId = "{{ $room->id }}";
+    // function submitComment() {
+    //     const commentText = document.getElementById("comment-text").value.trim();
+    //     const bookingId = "{{ $room->id }}";
 
-        if (commentText === "") {
-            Swal.fire("Error", "กรุณากรอกความคิดเห็น", "error");
-            return;
-        }
+    //     if (commentText === "") {
+    //         Swal.fire("Error", "กรุณากรอกความคิดเห็น", "error");
+    //         return;
+    //     }
 
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-        const token = document.querySelector('meta[name="auth-token"]').getAttribute('content');
+    //     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    //     const token = document.querySelector('meta[name="auth-token"]').getAttribute('content');
 
-        fetch('/api/comments', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken
-                },
-                body: JSON.stringify({
-                    booking_id: bookingId,
-                    comment: commentText
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById("comment-text").value = ''; // Reset comment textarea
-                fetchComments(); // รีเฟรชคอมเมนต์
-            })
-            .catch(error => {
-                console.error("Error submitting comment:", error);
-                Swal.fire("Error", "ไม่สามารถส่งความคิดเห็นได้", "error");
-            });
-    }
+    //     fetch('/api/comments', {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Authorization': `Bearer ${token}`,
+    //                 'Content-Type': 'application/json',
+    //                 'Accept': 'application/json',
+    //                 'X-CSRF-TOKEN': csrfToken
+    //             },
+    //             body: JSON.stringify({
+    //                 booking_id: bookingId,
+    //                 comment: commentText
+    //             })
+    //         })
+    //         .then(response => response.json())
+    //         .then(data => {
+    //             document.getElementById("comment-text").value = ''; // Reset comment textarea
+    //             fetchComments(); // รีเฟรชคอมเมนต์
+    //         })
+    //         .catch(error => {
+    //             console.error("Error submitting comment:", error);
+    //             Swal.fire("Error", "ไม่สามารถส่งความคิดเห็นได้", "error");
+    //         });
+    // }
 
     let isSubmitting = false;
 

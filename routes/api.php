@@ -13,17 +13,11 @@ use App\Http\Controllers\user\RoomUserController;
 use App\Http\Controllers\CommentController;
 use App\Models\Booking;
 
-
-
 /*
-|--------------------------------------------------------------------------
+|-----------------------------------------------------------------------
 | API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "api" middleware group. Make something great!
-|
+|-----------------------------------------------------------------------
+| Register API routes for your application
 */
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
@@ -34,8 +28,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
  * 🔹 Admin Authentication Routes
  */
 Route::prefix('admin')->group(function () {
-    Route::post('/login', [AdminAuthController::class, 'login']);
-    Route::post('/logout', [AdminAuthController::class, 'logout'])->middleware('auth:sanctum');
+    Route::post('login', [AdminAuthController::class, 'login']);
+    Route::post('logout', [AdminAuthController::class, 'logout'])->middleware('auth:sanctum');
 });
 
 /**
@@ -46,61 +40,56 @@ Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])
         ->name('admin.dashboard');
 
-    // Rooms Management - explicitly define the routes
+    // Rooms Management
     Route::get('/rooms', [AdminRoomController::class, 'index']);
     Route::post('/rooms', [AdminRoomController::class, 'store']);
     Route::get('/rooms/{id}', [AdminRoomController::class, 'show']);
-    Route::put('/rooms/{id}', [AdminRoomController::class, 'update']); // Changed to POST
+    Route::put('/rooms/{id}', [AdminRoomController::class, 'update']);
     Route::delete('/rooms/{id}', [AdminRoomController::class, 'destroy']);
 
+    // Bookings
     Route::get('/bookings', [AdminBookingController::class, 'index']);
     Route::get('/bookings/{id}', [AdminBookingController::class, 'show']);
     Route::patch('/bookings/{bookId}/status', [AdminBookingController::class, 'updateStatus']);
     Route::get('/user/bookings/{bookId}', [BookingController::class, 'show']);
 });
+
+// Registration & Login routes
 Route::post('/register', [RegisteredUserController::class, 'register']);
 Route::post('/login', [RegisteredUserController::class, 'login']);
 Route::post('/logout', [RegisteredUserController::class, 'Logout'])->middleware('auth:sanctum');
 
+// User Protected Routes
 Route::middleware('auth:api')->group(function () {
-    Route::get('/user/dashboard', [UserDashboardController::class, 'index'])->name(name: 'dashboard');
+    Route::get('/user/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
     Route::get('/user/{user_id}/dashboard', [UserDashboardController::class, 'getUserDashboardById']);
-    Route::get('/user/dashboard', [UserDashboardController::class, 'index']);
     Route::get('/user/bookings', [UserDashboardController::class, 'getUserBookings']);
     Route::get('/user/notifications', [UserDashboardController::class, 'getNotifications']);
     Route::get('/user/booking/reject-reason/{booking_id}', [UserDashboardController::class, 'getRejectReason']);
 });
 
-Route::get('/api/rooms', [RoomUserController::class, 'index']);
+// Room availability
+Route::get('/rooms/available', [BookingController::class, 'showAvailableRooms']);
 
+// Booking routes
+Route::get('/api/booking/{booking_id}', [BookingController::class, 'show'])->name('api.booking.show');
+
+// Calendar & Events
 Route::get('/calendar', [BookingController::class, 'calendar'])->name('calendar');
 Route::get('/get-events', [BookingController::class, 'getEvents'])->name('get-events');
 Route::get('/booking/events', [BookingController::class, 'getEvents'])->name('booking.events');
 Route::get('/book_detail', [BookingController::class, 'detail'])->name('booking.detail');
 
-Route::get('/booking/{booking_id}', [BookingController::class, 'show'])->name('booking.show');
-Route::middleware('auth:api')->group(function () {
-    Route::get('/booking/{booking_id}', [BookingController::class, 'show']);
-    Route::post('/booking/store', [BookingController::class, 'store']);
-    Route::get('/get-events', [BookingController::class, 'getEvents']);
-    Route::get('/my-bookings', [BookingController::class, 'myBookings']);
-    Route::get('/get-reject-reason/{booking_id}', [BookingController::class, 'getRejectReason']);
-    Route::get('/get-notifications', [BookingController::class, 'getNotifications']);
-});
-// ตั้งค่า route สำหรับการดึงข้อมูลห้องประชุมที่พร้อมจอง
-Route::get('/rooms/available', [BookingController::class, 'showAvailableRooms']);
-Route::get('booking/{bookingId}', [CommentController::class, 'apiBookingDetails']);
-// ตั้ง route สำหรับ API ทั้งหมดที่มี prefix /api
-
-
+// Comment routes
 Route::middleware(['auth:sanctum'])->group(function () {
-    // สำหรับส่งคอมเมนต์
     Route::post('/comments', [CommentController::class, 'store']);
-    // สำหรับดึงคอมเมนต์
     Route::get('/comments/{bookingId}', [CommentController::class, 'getComments']);
+    Route::post('/comments/{comment}/reply', [CommentController::class, 'reply'])->name('comments.reply');
+    Route::put('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
 });
 
-// สำหรับการเช็คสถานะการจองห้องใน API
+// Booking status
 Route::get('/api/booking-status/{roomId}', function ($roomId) {
     $booking = Booking::where('room_id', $roomId)->first();
 
@@ -114,15 +103,3 @@ Route::get('/api/booking-status/{roomId}', function ($roomId) {
         'bookstatus' => 'Pending'
     ]);
 });
-
-Route::middleware('auth:sanctum')->group(function () {
-    // การตอบกลับคอมเมนต์
-    Route::post('/comments/{comment}/reply', [CommentController::class, 'reply'])->name('comments.reply');
-
-    // การแก้ไขคอมเมนต์
-    Route::put('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
-
-    // การลบคอมเมนต์
-    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
-});
-
