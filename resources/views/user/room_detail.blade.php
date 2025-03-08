@@ -3,20 +3,20 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="auth-token" content="{{ auth()->user()->createToken('MeetingRoomApp')->plainTextToken }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-
 </head>
 
 <body class="bg-gray-100" x-data="{ sidebarOpen: false }">
     @extends('layouts.app')
+    @include('layouts.navigation')
     @section('content')
-        @include('layouts.navigation')
         <div class="container mx-auto my-8 px-4 pt-32">
             <div class="bg-white shadow-lg rounded-lg overflow-hidden flex flex-col md:flex-row">
                 <!-- Section รูปภาพห้อง -->
@@ -54,8 +54,6 @@
                                 class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
                                 จองห้องเลย
                             </button>
-
-
                             <!-- Modal Backdrop and Content -->
                             <div x-show="openBookingModal" x-cloak
                                 class="fixed inset-0 flex items-center justify-center z-50">
@@ -63,10 +61,9 @@
                                 <div class="fixed inset-0 bg-black opacity-50" @click="openBookingModal = false"></div>
 
                                 <!-- Modal Content -->
-                                <div class="bg-white p-6 rounded-lg shadow-lg relative z-10 w-11/12 md:w-1/2">
+                                <div class="bg-white p-6 rounded-lg shadow-lg relative z-10 w-8/12 md:w-2/2">
                                     <h2 class="text-xl font-bold mb-4">แบบฟอร์มจองห้องประชุม</h2>
                                     <!-- ฟอร์มการจองห้อง -->
-
                                     @if ($errors->any())
                                         <div class="bg-red-100 text-red-800 p-4 rounded mb-4">
                                             <ul>
@@ -131,6 +128,15 @@
                                             @foreach (old('book_date', [date('Y-m-d')]) as $index => $book_date)
                                                 <div class="booking-slot mb-4 border p-4 rounded">
                                                     <div class="mb-2">
+                                                        <div class="flex items-start pb-2">
+                                                            <p class="text-gray-700">
+                                                                เวลาที่ระบบได้เปิดให้ทำการจองได้นั้นคือตั้งแต่เวลา </p>
+                                                            <p class="font-bold text-green-600 pl-2">07:00 AM - 18:00 PM
+                                                            </p>
+                                                            <p class="text-gray-700 pl-2">
+                                                                ตามเวลาทำการและเวลาเปิดให้บริการองค์กรของเรา
+                                                                จึงเรียนมาให้ทราบ</p>
+                                                        </div>
                                                         <label for="book_date"
                                                             class="block text-sm font-bold mb-1">วันที่จอง</label>
                                                         <input type="date" name="book_date[]"
@@ -165,43 +171,13 @@
                                         <div class="mb-4">
                                             <label for="bookstatus"
                                                 class="block text-sm font-bold mb-1">สถานะการจอง</label>
-                                            @if (isset($booking) && count($booking) > 0)
-                                                @foreach ($booking as $singleBooking)
-                                                    <!-- แสดงค่าใน input ตามสถานะ -->
-                                                    <input type="text" name="bookstatus" id="bookstatus"
-                                                        value="{{ $singleBooking->bookstatus === 'Pending'
-                                                            ? 'กำลังรอการอนุมัติ'
-                                                            : ($singleBooking->bookstatus === 'booked'
-                                                                ? 'จองสำเร็จ'
-                                                                : ($singleBooking->bookstatus === 'Cancelled'
-                                                                    ? 'ถูกยกเลิกการจอง'
-                                                                    : '')) }}"
-                                                        class="w-full border border-gray-300 rounded p-2" readonly>
 
-                                                    <!-- สถานะการจอง -->
-                                                    @if ($singleBooking->bookstatus === 'Pending')
-                                                        <span
-                                                            class="inline-block bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">
-                                                            กำลังรอการอนุมัติ
-                                                        </span>
-                                                    @elseif ($singleBooking->bookstatus === 'booked')
-                                                        <span
-                                                            class="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold">
-                                                            จองสำเร็จ
-                                                        </span>
-                                                    @elseif ($singleBooking->bookstatus === 'Cancelled')
-                                                        <span
-                                                            class="inline-block bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-semibold">
-                                                            ยกเลิก
-                                                        </span>
-                                                    @endif
-                                                @endforeach
-                                            @else
-                                                <!-- กรณีไม่มีการจอง -->
-                                                <input type="text" name="bookstatus" id="bookstatus"
-                                                    value="กำลังรอการอนุมัติ"
-                                                    class="w-full border border-gray-300 rounded p-2" readonly>
-                                            @endif
+                                            <!-- Placeholder สำหรับแสดงสถานะการจอง -->
+                                            <input type="text" id="bookstatus"
+                                                class="w-full border border-gray-300 rounded p-2" readonly>
+
+                                            <!-- จะแสดงสถานะในรูปแบบ <span> -->
+                                            <div id="booking-status"></div>
                                         </div>
                                         <button type="submit"
                                             class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
@@ -231,7 +207,7 @@
                         <!-- End of Booking Button and Modal -->
                         <div class="mt-6">
                             <a href="{{ route('rooms.index') }}"
-                                class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+                                class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded">
                                 กลับไปหน้ารายการ
                             </a>
                         </div>
@@ -240,10 +216,77 @@
                     <p>ไม่พบข้อมูลห้อง</p>
                 @endif
             </div>
-        </div>
+            <div id="comments-section" class="bg-gray-50 p-6 rounded-lg shadow-lg">
+                <h3 class="text-xl font-semibold mb-4">ความคิดเห็น</h3>
+                <div id="comments-list" class="mb-4">
+                    <!-- คอมเมนต์จะแสดงที่นี่ -->
+                </div>
 
+                <!-- ฟอร์มเพิ่มคอมเมนต์ -->
+                <textarea id="comment-text" placeholder="แสดงความคิดเห็น..."
+                    class="w-full p-3 mb-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"></textarea>
+                <button id="submit-comment" onclick="submitComment()"
+                    class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-300">
+                    ส่งความคิดเห็น
+                </button>
+            </div>
+        </div>
     @endsection
 </body>
+<script>
+    // ดึงข้อมูลสถานะการจองจาก API
+    fetch(`/api/booking-status/${roomId}`) // ปรับ URL ให้ตรงกับ API ของคุณ
+        .then(response => response.json())
+        .then(data => {
+            const bookstatusElement = document.getElementById('bookstatus');
+            const bookingStatusDiv = document.getElementById('booking-status');
+
+            if (data && data.bookstatus) {
+                // แสดงสถานะใน input
+                bookstatusElement.value = data.bookstatus === 'Pending' ?
+                    'กำลังรอการอนุมัติ' :
+                    (data.bookstatus === 'booked' ?
+                        'จองสำเร็จ' :
+                        (data.bookstatus === 'Cancelled' ? 'ถูกยกเลิกการจอง' : ''));
+
+                // แสดงสถานะใน <span> ข้างๆ
+                let statusSpan = '';
+                if (data.bookstatus === 'Pending') {
+                    statusSpan =
+                        '<span class="inline-block bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">กำลังรอการอนุมัติ</span>';
+                } else if (data.bookstatus === 'booked') {
+                    statusSpan =
+                        '<span class="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold">จองสำเร็จ</span>';
+                } else if (data.bookstatus === 'Cancelled') {
+                    statusSpan =
+                        '<span class="inline-block bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-semibold">ยกเลิก</span>';
+                }
+
+                // แสดงสถานะใน div
+                bookingStatusDiv.innerHTML = statusSpan;
+            } else {
+                // กรณีไม่มีข้อมูล
+                bookstatusElement.value = "กำลังรอการอนุมัติ";
+                bookingStatusDiv.innerHTML =
+                    "<span class='inline-block bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm font-semibold'>ไม่พบข้อมูล</span>";
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching booking status:', error);
+        });
+</script>
+@if ($errors->any())
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            Swal.fire({
+                title: 'พบข้อผิดพลาด!',
+                html: `{!! implode('<br>', $errors->all()) !!}`,
+                icon: 'error',
+                confirmButtonText: 'ตกลง'
+            });
+        });
+    </script>
+@endif
 <script>
     // Check if there is a success session and show modal if necessary
     @if (session('success'))
@@ -263,22 +306,7 @@
         window.location.href = '{{ route('booking.show', ['booking_id' => $room->id]) }}';
     });
 </script>
-<script>
-    // Check if $booking is set in the Blade view before using it
-    @if (isset($booking) && $booking)
-        document.getElementById('view-details-btn')?.addEventListener('click', function() {
-            // Now you can safely access $booking->id
-            window.location.href =
-                '{{ route('booking.show', ['roomId' => $room->id, 'book_id' => $booking->id]) }}';
-        });
-    @else
-        // Handle the case where booking is not available
-        document.getElementById('view-details-btn')?.addEventListener('click', function() {
-            alert('Booking not found');
-        });
-    @endif
-</script>
-<script>
+{{-- <script>
     document.getElementById('booking-form').addEventListener('submit', function(event) {
         event.preventDefault(); // Prevent form from submitting normally
 
@@ -313,7 +341,7 @@
                 alert('เกิดข้อผิดพลาดในการส่งข้อมูล');
             });
     });
-</script>
+</script> --}}
 <script>
     document.getElementById('booking-form').addEventListener('submit', function(e) {
         e.preventDefault(); // ป้องกันการ Submit ปกติ
@@ -329,7 +357,10 @@
                 method: "POST",
                 body: formData,
                 headers: {
-                    "X-CSRF-TOKEN": document.querySelector('input[name=_token]').value
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                        'content'),
+                    'Authorization': 'Bearer YOUR_ACCESS_TOKEN',
+                    'Content-Type': 'application/json'
                 }
             })
             .then(response => response.text()) // อ่านเป็นข้อความก่อน
@@ -419,5 +450,403 @@
             });
     });
 </script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        fetchComments();
+        // ตรวจสอบว่า JavaScript โหลดสมบูรณ์
+        console.log("JavaScript Loaded!");
+        // Get the token from the meta tag
+        const token = document.querySelector('meta[name="auth-token"]').getAttribute('content');
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+        // ตรวจสอบว่าโทเค็นถูกรับมาอย่างถูกต้อง
+        console.log("Auth Token:", token); // ตรวจสอบว่า auth-token ถูกรับมาอย่างถูกต้อง
+        console.log("CSRF Token:", csrfToken); // ตรวจสอบว่า csrf-token ถูกรับมาอย่างถูกต้อง
+        // ตรวจสอบว่า button submit-comment มีอยู่ใน DOM หรือไม่
+        const submitButton = document.getElementById("submit-comment");
+        if (submitButton) {
+            submitButton.addEventListener("click", function() {
+                submitComment(token);
+            });
+        } else {
+            console.error("Submit button not found!");
+        }
+    });
+
+    function fetchComments() {
+        const bookingId = "{{ $room->id }}"; // ดึง bookingId จาก Controller
+        const loggedInUserId = "{{ auth()->id() ?? '' }}"; // ใช้ค่าหรือค่าว่างถ้าไม่ล็อกอิน
+
+        fetch(`/api/comments/${bookingId}`)
+            .then(response => response.json())
+            .then(comments => {
+                let commentsHTML = '';
+                comments.forEach(comment => {
+                    const time = new Date(comment.created_at)
+                        .toLocaleString(); // แปลงเวลาเป็นรูปแบบที่อ่านง่าย
+
+                    commentsHTML += `
+                <div id="comment-${comment.id}" class="comment-container p-4 my-3 bg-gray-100 rounded-lg shadow-lg">
+                    <p class="font-semibold text-lg">${comment.user.username} (${time})</p>
+                    <p class="text-gray-700">${comment.comment}</p>`;
+
+                    // เงื่อนไขการแสดงปุ่มแก้ไขและลบสำหรับคอมเมนต์
+                    if (comment.user.id === parseInt(loggedInUserId)) {
+                        commentsHTML += `
+                    <div class="action-buttons mt-2">
+                        <button onclick="editComment(${comment.id})" class="btn-edit">แก้ไข</button>
+                        <button onclick="deleteComment(${comment.id})" class="btn-delete">ลบ</button>
+                        <button onclick="replyToComment(${comment.id})" class="btn-reply">ตอบกลับ</button>
+                    </div>`;
+                    } else {
+                        commentsHTML += `
+                    <div class="action-buttons mt-2">
+                        <button onclick="replyToComment(${comment.id})" class="btn-reply">ตอบกลับ</button>
+                    </div>`;
+                    }
+
+                    // แสดงคำตอบ (Replies)
+                    if (comment.replies.length > 0) {
+                        comment.replies.forEach(reply => {
+                            const replyTime = new Date(reply.created_at).toLocaleString();
+                            commentsHTML += `
+                        <div class="reply-container ml-6 p-3 bg-gray-200 rounded-lg my-2">
+                            <p class="font-semibold text-sm">${reply.user.username} (Reply) (${replyTime})</p>
+                            <p class="text-gray-600">${reply.comment}</p>`;
+
+                            // เงื่อนไขการแสดงปุ่มแก้ไขและลบสำหรับคำตอบ (Replies)
+                            if (reply.user.id === parseInt(loggedInUserId)) {
+                                commentsHTML += `
+                            <div class="action-buttons mt-2">
+                                <button onclick="editComment(${reply.id})" class="btn-edit">แก้ไข</button>
+                                <button onclick="deleteComment(${reply.id})" class="btn-delete">ลบ</button>
+                            </div>`;
+                            }
+
+                            commentsHTML += `</div>`; // ปิด div ของคำตอบ
+                        });
+                    }
+
+                    commentsHTML += `</div>`; // ปิด div ของคอมเมนต์
+                });
+
+                const commentsListElement = document.getElementById("comments-list");
+                if (commentsListElement) {
+                    commentsListElement.innerHTML = commentsHTML;
+                }
+            })
+            .catch(error => {
+                console.error("Error fetching comments:", error);
+                alert("ไม่สามารถโหลดความคิดเห็นได้");
+            });
+    }
+
+
+    // function submitComment() {
+    //     const commentText = document.getElementById("comment-text").value.trim();
+    //     const bookingId = "{{ $room->id }}";
+
+    //     if (commentText === "") {
+    //         Swal.fire("Error", "กรุณากรอกความคิดเห็น", "error");
+    //         return;
+    //     }
+
+    //     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    //     const token = document.querySelector('meta[name="auth-token"]').getAttribute('content');
+
+    //     fetch('/api/comments', {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Authorization': `Bearer ${token}`,
+    //                 'Content-Type': 'application/json',
+    //                 'Accept': 'application/json',
+    //                 'X-CSRF-TOKEN': csrfToken
+    //             },
+    //             body: JSON.stringify({
+    //                 booking_id: bookingId,
+    //                 comment: commentText
+    //             })
+    //         })
+    //         .then(response => response.json())
+    //         .then(data => {
+    //             document.getElementById("comment-text").value = ''; // Reset comment textarea
+    //             fetchComments(); // รีเฟรชคอมเมนต์
+    //         })
+    //         .catch(error => {
+    //             console.error("Error submitting comment:", error);
+    //             Swal.fire("Error", "ไม่สามารถส่งความคิดเห็นได้", "error");
+    //         });
+    // }
+
+    let isSubmitting = false;
+
+    function submitComment() {
+        if (isSubmitting) return; // ป้องกันการเรียกซ้ำ
+        isSubmitting = true;
+
+        const commentText = document.getElementById("comment-text").value.trim();
+        const bookingId = "{{ $room->id }}";
+
+        if (commentText === "") {
+            Swal.fire("Error", "กรุณากรอกความคิดเห็น", "error");
+            return;
+        }
+
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        const token = document.querySelector('meta[name="auth-token"]').getAttribute('content');
+
+        console.log("Sending request to /api/comments with booking_id:", bookingId);
+        console.log("Headers:", {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken
+        });
+
+        fetch('/api/comments', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                body: JSON.stringify({
+                    booking_id: bookingId,
+                    comment: commentText
+                })
+            })
+            .then(response => response.text())
+            .then(text => {
+                console.log("Response Text: ", text);
+                try {
+                    const data = JSON.parse(text);
+                    return data;
+                } catch (e) {
+                    throw new Error("Response is not valid JSON: " + text);
+                }
+            })
+            .then(data => {
+                document.getElementById("comment-text").value = ''; // Reset comment textarea
+                fetchComments(); // รีเฟรชคอมเมนต์เพื่อแสดงใหม่ทันที
+            })
+            .catch(error => {
+                console.error("Error submitting comment:", error);
+                Swal.fire("Error", "ไม่สามารถส่งความคิดเห็นได้", "error");
+            });
+    }
+
+    function replyToComment(commentId) {
+        const commentContainer = document.getElementById(`comment-${commentId}`);
+
+        // ตรวจสอบว่า commentContainer มีช่อง input หรือปุ่มตอบกลับอยู่แล้วหรือไม่
+        if (commentContainer.querySelector('.reply-input')) {
+            // alert('คุณกำลังตอบกลับความคิดเห็นนี้อยู่แล้ว');
+            return; // ถ้ามีช่อง input อยู่แล้ว ไม่ให้ทำอะไร
+        }
+
+        const inputField = document.createElement('textarea');
+        inputField.classList.add('reply-input', 'mt-2', 'w-full', 'p-2', 'border', 'rounded');
+        inputField.placeholder = 'กรุณากรอกคำตอบ...';
+
+        // สร้างปุ่มบันทึกและยกเลิก
+        const actionContainer = document.createElement('div');
+        actionContainer.classList.add('action-buttons', 'mt-2');
+
+        const saveButton = document.createElement('button');
+        saveButton.textContent = 'บันทึก';
+        saveButton.classList.add('btn-save', 'bg-blue-500', 'text-white', 'p-2', 'rounded', 'mr-2');
+        saveButton.onclick = function() {
+            const replyText = inputField.value;
+            if (replyText) {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                const token = document.querySelector('meta[name="auth-token"]').getAttribute('content');
+
+                fetch(`/api/comments/${commentId}/reply`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken
+                        },
+                        body: JSON.stringify({
+                            reply: replyText
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data); // ดู error message ที่ได้จาก Laravel
+                        if (data.success) {
+                            fetchComments();
+                        } else {
+                            alert(data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error:", error);
+                        alert("ไม่สามารถตอบกลับคอมเมนต์ได้");
+                    });
+
+            }
+        };
+
+        const cancelButton = document.createElement('button');
+        cancelButton.textContent = 'ยกเลิก';
+        cancelButton.classList.add('btn-cancel', 'bg-gray-500', 'text-white', 'p-2', 'rounded');
+        cancelButton.onclick = function() {
+            commentContainer.removeChild(inputField);
+            commentContainer.removeChild(actionContainer);
+        };
+
+        actionContainer.appendChild(saveButton);
+        actionContainer.appendChild(cancelButton);
+
+        commentContainer.appendChild(inputField);
+        commentContainer.appendChild(actionContainer);
+    }
+
+
+    function deleteComment(commentId) {
+        Swal.fire({
+            title: 'คุณแน่ใจหรือไม่?',
+            text: "คุณต้องการลบความคิดเห็นนี้หรือไม่?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'ลบ',
+            cancelButtonText: 'ยกเลิก',
+        }).then(result => {
+            if (result.isConfirmed) {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                const token = document.querySelector('meta[name="auth-token"]').getAttribute('content');
+
+                fetch(`/api/comments/${commentId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        fetchComments(); // รีเฟรชคอมเมนต์
+                        Swal.fire("สำเร็จ", "ความคิดเห็นถูกลบแล้ว", "success");
+                    })
+                    .catch(error => {
+                        console.error("Error deleting comment:", error);
+                        Swal.fire("Error", "ไม่สามารถลบความคิดเห็นได้", "error");
+                    });
+            }
+        });
+    }
+
+    function editComment(commentId) {
+        const commentContainer = document.getElementById(`comment-${commentId}`);
+        const originalComment = commentContainer.querySelector('p.text-gray-700');
+
+        // สร้างช่อง input แสดงข้อความเดิม
+        const inputField = document.createElement('textarea');
+        inputField.classList.add('edit-input', 'w-full', 'p-2', 'border', 'rounded');
+        inputField.value = originalComment.textContent;
+
+        // สร้างปุ่มบันทึกและยกเลิก
+        const actionContainer = document.createElement('div');
+        actionContainer.classList.add('action-buttons', 'mt-2');
+
+        const saveButton = document.createElement('button');
+        saveButton.textContent = 'บันทึก';
+        saveButton.classList.add('btn-save', 'bg-blue-500', 'text-white', 'p-2', 'rounded', 'mr-2');
+        saveButton.onclick = function() {
+            const newComment = inputField.value;
+            if (newComment) {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                const token = document.querySelector('meta[name="auth-token"]').getAttribute('content');
+
+                fetch(`/api/comments/${commentId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken
+                        },
+                        body: JSON.stringify({
+                            comment: newComment
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        fetchComments(); // รีเฟรชคอมเมนต์
+                    })
+                    .catch(error => {
+                        console.error("Error editing comment:", error);
+                        alert("ไม่สามารถแก้ไขความคิดเห็นได้");
+                    });
+            }
+        };
+
+        const cancelButton = document.createElement('button');
+        cancelButton.textContent = 'ยกเลิก';
+        cancelButton.classList.add('btn-cancel', 'bg-gray-500', 'text-white', 'p-2', 'rounded');
+        cancelButton.onclick = function() {
+            commentContainer.removeChild(inputField);
+            commentContainer.removeChild(actionContainer);
+        };
+
+        actionContainer.appendChild(saveButton);
+        actionContainer.appendChild(cancelButton);
+
+        commentContainer.appendChild(inputField);
+        commentContainer.appendChild(actionContainer);
+    }
+</script>
+
+<style>
+    #comments-list {
+        max-height: 350px;
+        /* กำหนดความสูงสูงสุดของคอมเมนต์ */
+        overflow-y: auto;
+        /* ให้คอมเมนต์เลื่อนลงได้ */
+    }
+
+    /* กำหนดความสูงของกล่องคอมเมนต์ */
+    <style>.comment-container {
+        background-color: #f9fafb;
+    }
+
+    .reply-container {
+        margin-left: 2rem;
+        background-color: #f1f5f9;
+    }
+
+    .action-buttons button {
+        padding: 5px 10px;
+        margin-right: 5px;
+        font-size: 14px;
+    }
+
+    .btn-reply {
+        border: none;
+        background-color: transparent;
+        color: #3b82f6;
+    }
+
+    .btn-delete {
+        background-color: transparent;
+        color: red;
+    }
+
+    .btn-edit {
+        background-color: transparent;
+        color: #3b82f6;
+    }
+
+    .btn-save,
+    .btn-cancel {
+        padding: 6px 12px;
+        background-color: #3b82f6;
+        color: white;
+        border-radius: 4px;
+    }
+</style>
 
 </html>

@@ -14,50 +14,112 @@
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.0/locales/th.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.0/main.min.css" rel="stylesheet">
 </head>
+<style>
+    @media (max-width: 768px) {
+        .modal-content {
+            width: 95%;
+            max-width: 90%;
+            padding: 15px;
+        }
+
+        .modal-title {
+            font-size: 24px;
+        }
+
+        .modal-body p {
+            font-size: 1rem;
+            flex-direction: column;
+            /* ให้ strong และ span อยู่คนละบรรทัด */
+            text-align: left;
+        }
+
+        .modal-body strong {
+            min-width: 100%;
+            display: block;
+        }
+    }
+
+    /* ปรับปุ่ม Toolbar */
+    .fc-toolbar-chunk button {
+        background-color: #28a745 !important;
+        /* สีเขียว */
+        color: white !important;
+        border-radius: 15px !important;
+        padding: 8px 12px !important;
+        border: none !important;
+        margin-right: 10px !important;
+        /* เพิ่มระยะห่าง */
+    }
+
+    .fc-toolbar-chunk button:hover {
+        background-color: #218838 !important;
+    }
+
+    /* ปรับแถบหัวปฏิทิน */
+    .fc-toolbar {
+        background-color: #f8f9fa !important;
+        padding: 10px !important;
+        border-bottom: 2px solid #ddd !important;
+    }
+
+    .fc-toolbar h2 {
+        font-size: 20px !important;
+        font-weight: bold;
+        color: #333;
+    }
+
+    /* ปรับแต่งป้ายอีเวนต์ให้เป็นโค้งมน */
+    .fc-event {
+        border-radius: 12px !important;
+        padding: 6px 10px !important;
+        font-weight: bold;
+        font-size: 14px;
+    }
+</style>
+
 <body x-data="{ sidebarOpen: false }" class="bg-gray-100">
     @extends('layouts.app')
-    @include('layouts.navigation')
-    @include('layouts.sidebar')
+    <div class="pb-32">
+        @include('layouts.navigation')
+    </div>
     @section('content')
-        <div class="max-w-6xl mx-auto">
-            <h1 class="text-2xl font-bold mb-4">📅 Dashboard - ระบบจองห้องประชุม</h1>
+        <div class="max-w-6xl mx-auto pb-20">
+            <h1 class="text-2xl font-bold mb-4">📅 Dashboard - การจองห้องประชุมสำหรับผู้ใช้</h1>
+            <!-- ห้องที่พร้อมให้จอง -->
+
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <p class="text-sm font-medium flex items-center">
+                    <span class="w-4 h-4 inline-block bg-yellow-400 rounded-full mr-2"></span>
+                    หมายถึงสีสถานะการจองของผู้ใช้ท่านอื่น
+                </p>
+                <p class="text-sm font-medium flex items-center">
+                    <span class="w-4 h-4 inline-block bg-blue-400 rounded-full mr-2"></span>
+                    หมายถึงสีสถานะการจองของตัวเอง
+                </p>
                 <!-- ปฏิทิน -->
                 <div id="calendar" class="p-4 w-[90%] rounded-xl shadow-md md:col-span-2">
-                    <h2 class="text-lg font-semibold">📆 ปฏิทินการจอง</h2>
                 </div>
-                <!-- การแจ้งเตือน -->
-                <div class="bg-white p-4 rounded-xl shadow-md">
-                    <h2 class="text-lg font-semibold">🔔 การแจ้งเตือน</h2>
-                    <ul class="text-sm text-gray-600 mt-2">
-                        @forelse ($notifications as $notification)
-                            <li>📢 {{ $notification }}</li>
-                        @empty
-                            <li class="text-gray-400">ไม่มีการแจ้งเตือน</li>
-                        @endforelse
-                    </ul>
-                </div>
-            </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                <!-- รายการการจอง -->
                 <div class="bg-white p-4 rounded-xl shadow-md">
-                    <h2 class="text-lg font-semibold">📌 การจองของฉัน</h2>
+                    <h2 class="text-lg font-semibold pb-4">📌 การจองของฉัน</h2>
+                    <a href="{{ route('rooms.index') }}"
+                        class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center justify-center space-x-2 ">
+                        <img src="{{ asset('images/next.png') }}" class="w-7 h-7 filter invert brightness-100" alt="Next Icon">
+                        <span>Meet Room List</span>
+                    </a>
                     <ul class="text-sm text-gray-600 mt-2">
                         @forelse ($bookings as $booking)
-                            <li>🔹 {{ $booking->room->room_name ?? 'ไม่ระบุห้อง' }} - {{ $booking->start_time }} -
+                            <li> {{ $booking->book_date }} - {{ $booking->room->room_name ?? 'ไม่ระบุห้อง' }} -
+                                {{ $booking->start_time }} -
                                 {{ $booking->end_time }}</li>
                         @empty
                             <li class="text-gray-400">ไม่มีการจอง</li>
                         @endforelse
                     </ul>
                 </div>
-
-
-                <!-- ห้องที่พร้อมให้จอง -->
                 <div class="bg-white p-4 rounded-xl shadow-md">
                     <h2 class="text-lg font-semibold">🏢 ห้องประชุมที่พร้อมจอง</h2>
-                    <ul id="roomList" class="text-sm text-gray-600 mt-2">
+                    <ul id="roomList" class="text-sm text-gray-600 mt-2 pb-2">
                         <!-- ข้อมูลห้องประชุมจะแสดงที่นี่ -->
                     </ul>
                 </div>
@@ -68,27 +130,59 @@
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 var calendarEl = document.getElementById('calendar');
-
                 var calendar = new FullCalendar.Calendar(calendarEl, {
                     locale: 'th', // ใช้ภาษาไทย
                     initialView: 'dayGridMonth', // เริ่มต้นแสดงเป็นเดือน
+                    eventClass: 'my-event-class',
+                    eventTextColor: 'black', //
+                    eventBackgroundColor: '#FF66CC',
+                    events: '/get-events',
+                    eventDidMount: function(info) {
+                        let eventType = info.event.extendedProps.labelType; // ประเภทของป้าย
+                        let labelColors = {
+                            "red": "#ff4d4d", // สีแดง
+                            "green": "#28a745", // สีเขียว
+                            "blue": "#007bff", // สีฟ้า
+                            "yellow": "#ffc107", // สีเหลือง
+                            "gray": "#6c757d" // สีเทา
+                        };
+
+                        let eventUserId = info.event.extendedProps.user_id;
+                        let currentUserId = @json(auth()->id());
+
+                        // เปลี่ยนสีพื้นหลังของป้ายตามประเภท
+                        let eventColor = labelColors[eventType] || "#dcdcdc";
+
+                        // ถ้าผู้ใช้ที่ล็อกอินเป็นเจ้าของอีเวนต์ จะเปลี่ยนสีให้แตกต่าง
+                        if (eventUserId == currentUserId) {
+                            eventColor = "#007bff"; // สีฟ้าสำหรับเจ้าของอีเวนต์
+                            info.el.style.color = "white";
+                        } else {
+                            eventColor = "yellow"; // สีเหลืองสำหรับอีเวนต์ของคนอื่น
+                            info.el.style.color = "black";
+                        }
+
+                        // ใช้ CSS เปลี่ยนสีพื้นหลังของอีเวนต์
+                        info.el.style.backgroundColor = eventColor;
+                        info.el.style.borderRadius = "10px";
+                        info.el.style.padding = "5px 8px";
+                        info.el.style.textAlign = "center";
+
+                        // เพิ่ม Tooltip แสดงรายละเอียด
+                        info.el.setAttribute('title', info.event.title + " (" + eventType + ")");
+                    },
                     headerToolbar: { // เพิ่มส่วนหัวสำหรับการเลือกมุมมอง (เช่น เดือน, สัปดาห์, วัน)
                         left: 'prev,next today', // ปุ่มก่อนหน้า, ถัดไป, วันนี้
                         center: 'title', // ชื่อเดือน
                         right: 'dayGridMonth,timeGridWeek,timeGridDay', // ปุ่มมุมมองเดือน, สัปดาห์, วัน
                     },
+                    themeSystem: 'bootstrap5',
                     buttonText: {
                         today: 'วันนี้',
                         month: 'เดือน',
                         week: 'สัปดาห์',
                         day: 'วัน',
                     },
-                    eventClass: 'my-event-class',
-                    eventTextColor: 'white', //
-                    eventBackgroundColor: '#00bfff',
-                    eventBorderColor: '#00bfff', // สีขอบของ event
-
-                    events: '/get-events',
                     eventClick: function(info) {
                         // ฟังก์ชันจัดการการคลิก event
                         var modal = new bootstrap.Modal(document.getElementById('eventModal'));
@@ -236,6 +330,32 @@
             });
         </script>
         <script>
+            fetch('/api/my-bookings')
+                .then(response => response.json())
+                .then(data => {
+                    // แสดงข้อมูลการจอง
+                    const myBookingsList = document.getElementById("myBookingsList");
+                    myBookingsList.innerHTML = '';
+
+                    // เพิ่มลิงก์ไปยังหน้า rooms
+                    const link = document.createElement('a');
+                    link.href = data.rooms_url;
+                    link.textContent = "Go to Room List";
+                    myBookingsList.appendChild(link);
+
+                    // แสดงการจอง
+                    data.bookings.forEach(booking => {
+                        const listItem = document.createElement("li");
+                        listItem.innerHTML =
+                            `🔹 ${booking.room_name ?? 'ไม่ระบุห้อง'} - ${booking.start_time} - ${booking.end_time}`;
+                        myBookingsList.appendChild(listItem);
+                    });
+                })
+                .catch(error => {
+                    console.error("Error fetching bookings:", error);
+                });
+        </script>
+        <script>
             // ฟังก์ชันสำหรับดึงข้อมูลห้องประชุมจาก API
             function fetchAvailableRooms() {
                 fetch('/api/rooms/available') // API ที่ดึงข้อมูลห้องประชุมที่พร้อมจอง
@@ -244,20 +364,15 @@
                         const roomList = document.getElementById('roomList');
                         roomList.innerHTML = ''; // เคลียร์รายการเดิม
 
-                        if (data.length === 0) {
+                        // นับจำนวนห้องที่พร้อมใช้งาน
+                        const availableRooms = data.filter(room => room.room_status === 'available');
+
+                        if (availableRooms.length === 0) {
                             roomList.innerHTML = '<li class="text-gray-400">ไม่มีห้องประชุมที่พร้อมใช้งาน</li>';
                         } else {
-                            data.forEach(room => {
-                                const roomStatusClass = room.room_status === 'available' ? 'text-green-500' :
-                                    'text-red-500';
-                                const statusIcon = room.room_status === 'available' ? '🔴' : '🟢';
-                                const roomItem = `
-                                <li class="${roomStatusClass}">
-                                    ${statusIcon} ${room.room_name}
-                                </li>
-                            `;
-                                roomList.innerHTML += roomItem;
-                            });
+                            // แสดงจำนวนห้องที่พร้อมใช้งาน
+                            roomList.innerHTML =
+                                `<li class="text-green-500 text-2xl">มี ${availableRooms.length} ห้องประชุมที่พร้อมให้จอง</li>`;
                         }
                     })
                     .catch(error => {
