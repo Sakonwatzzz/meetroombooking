@@ -12,6 +12,7 @@ use App\Http\Controllers\RoomDetailController;
 use App\Http\Controllers\user\BookingController;
 use App\Http\Controllers\admin\AdminBookingController;
 use App\Http\Controllers\admin\AdminNotificationController;
+use App\Http\Controllers\CommentController;
 
 use App\Http\Controllers\User\UserDashboardController;
 
@@ -59,7 +60,11 @@ Route::get('/rooms', [RoomUserController::class, 'index'])->middleware('auth')->
 
 require __DIR__ . '/auth.php';
 
+// routes/web.php
 Route::get('/admin/login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
+Route::post('/admin/login', [AdminAuthController::class, 'login']);
+Route::post('/admin/logout', [AdminAuthController::class, 'logout'])->middleware('auth:sanctum');
+
 
 Route::middleware('auth:admin')->group(function () {
     Route::get('/admin/dashboard', function () {
@@ -159,6 +164,13 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/dashboard', [BookingController::class, 'showDashboard'])->name('dashboard');
-
 Route::get('/user/bookings/{booking_id}', [BookingController::class, 'show']);
 Route::get('/get-events', [BookingController::class, 'getEvents'])->name('get-events');
+Route::get('/room_detail/{id}', [RoomDetailController::class, 'show'])->name('room_detail');
+
+Route::middleware(['auth:sanctum'])->group(function () {
+    // POST สำหรับส่งคอมเมนต์
+    Route::post('/comments', [CommentController::class, 'store']);
+    // GET สำหรับดึงคอมเมนต์
+    Route::get('/comments/{bookingId}', [CommentController::class, 'getComments']);
+});

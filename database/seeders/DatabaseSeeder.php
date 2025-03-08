@@ -26,8 +26,8 @@ class DatabaseSeeder extends Seeder
     private function runAdmin(): void {
         Admin::create([
             'name' => 'Admin',
-            'email' => 'admin@test.com',
-            'password' => Hash::make('1234'),
+            'email' => 'admin123@test.com',
+            'password' => Hash::make('12345678'),
         ]);
     }
 }

@@ -10,6 +10,9 @@ use App\Http\Controllers\user\BookingController;
 use App\Http\Controllers\admin\AdminBookingController;
 use App\Http\Controllers\user\UserDashboardController;
 use App\Http\Controllers\user\RoomUserController;
+use App\Http\Controllers\CommentController;
+use App\Models\Booking;
+
 
 
 /*
@@ -84,7 +87,42 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/get-reject-reason/{booking_id}', [BookingController::class, 'getRejectReason']);
     Route::get('/get-notifications', [BookingController::class, 'getNotifications']);
 });
-
 // ตั้งค่า route สำหรับการดึงข้อมูลห้องประชุมที่พร้อมจอง
 Route::get('/rooms/available', [BookingController::class, 'showAvailableRooms']);
+Route::get('booking/{bookingId}', [CommentController::class, 'apiBookingDetails']);
+// ตั้ง route สำหรับ API ทั้งหมดที่มี prefix /api
+
+
+Route::middleware(['auth:sanctum'])->group(function () {
+    // สำหรับส่งคอมเมนต์
+    Route::post('/comments', [CommentController::class, 'store']);
+    // สำหรับดึงคอมเมนต์
+    Route::get('/comments/{bookingId}', [CommentController::class, 'getComments']);
+});
+
+// สำหรับการเช็คสถานะการจองห้องใน API
+Route::get('/api/booking-status/{roomId}', function ($roomId) {
+    $booking = Booking::where('room_id', $roomId)->first();
+
+    if ($booking) {
+        return response()->json([
+            'bookstatus' => $booking->bookstatus
+        ]);
+    }
+
+    return response()->json([
+        'bookstatus' => 'Pending'
+    ]);
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+    // การตอบกลับคอมเมนต์
+    Route::post('/comments/{comment}/reply', [CommentController::class, 'reply'])->name('comments.reply');
+
+    // การแก้ไขคอมเมนต์
+    Route::put('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
+
+    // การลบคอมเมนต์
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
+});
 
