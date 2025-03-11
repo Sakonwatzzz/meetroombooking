@@ -9,8 +9,22 @@
 
 ## About Laravel
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
-
+สวัสดีครับ ยินดีต้อนรับเข้าสู่เว็บเซอร์วิส Meeting Room Booking หรือก็คือระบบจองห้องประชุมออนไลน์ที่ช่วยให้ผู้ใช้สามารถตรวจสอบห้องประชุมที่ว่างอยู่ ทำการจอง และจัดการการประชุมได้อย่างสะดวกและมีประสิทธิภาพ
+ระบบนี้ถูกพัฒนาขึ้นโดยใช้ Laravel Framework ซึ่งเป็นเฟรมเวิร์ก PHP ที่ทรงพลังและได้รับความนิยมสูง มีความสามารถในการจัดการข้อมูล การควบคุมสิทธิ์การเข้าถึง และการใช้งานร่วมกับฐานข้อมูลอย่างมีประสิทธิภาพ นอกจากนี้ Laravel ยังรองรับการพัฒนา RESTful API ซึ่งช่วยให้สามารถเชื่อมต่อกับแอปพลิเคชันอื่น ๆ ได้อย่างง่ายดาย
+คุณสมบัติหลักของ Meeting Room Booking
+แสดงรายการห้องประชุมที่พร้อมใช้งาน
+การจองห้องประชุมแบบเรียลไทม์
+การยืนยันและแจ้งเตือนการจอง
+ระบบจัดการผู้ใช้และสิทธิ์การเข้าถึง
+รายงานสถิติการใช้งานห้องประชุม
+Laravel ช่วยให้การพัฒนาระบบนี้เป็นไปอย่างรวดเร็ว มีความปลอดภัยสูง และรองรับการขยายตัวของระบบในอนาคต
+โดยทีมงานหรือสมาชิกทีมที่ได้พัฒนามีทั้งหมด 5 คน ซึ่งแต่ละคนมีหน้าที่และความรับผิดชอบที่สอดคล้องกันแบ่งการทำงานเป็นส่วนๆที่ต่อเนื่องกันอย่างเป็นระบบ ได้แก่
+1. นาย ปัญญากร ดวงตารัมน์
+2. นาย สกลวรรธน์ มาสันเทียะ
+3. นาย นายพีรพัฒน์ กัลบุตร
+4. นางสาว สโรชา ขวางรัมน์
+5. นางสาว ชมพููนุท แก้วจันทร์
+ซึ่งสมาชิกทั้ง 5 คนนี้ปัจจุบันกำลังศึกษาอยู่ชั้นปีที่ 4 สาขาวิชาเทคโนโลยีสารสนเทศ แผนกพัฒนาซอฟต์ มหาวิทยาลับราชภัฏบุรีรัมย์ (11/03/2025)
 - [Simple, fast routing engine](https://laravel.com/docs/routing).
 - [Powerful dependency injection container](https://laravel.com/docs/container).
 - Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
